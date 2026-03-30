@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>飛航模飾｜庫存補貨分析總覽</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'PingFang TC','Microsoft JhengHei',sans-serif;background:#f5f0eb;color:#3a485e;font-size:13px;}
+.page{max-width:1200px;margin:0 auto;padding:22px 18px 60px;}
+
+/* Header */
+.hdr{background:#3a485e;color:#fff;border-radius:12px;padding:18px 24px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.hdr h1{font-size:17px;font-weight:600;}
+.hdr .sub{font-size:10px;opacity:.55;margin-top:3px;}
+.hm-row{display:flex;gap:12px;flex-wrap:wrap;}
+.hm{background:rgba(255,255,255,.09);border-radius:8px;padding:6px 12px;text-align:center;}
+.hm .v{font-size:15px;font-weight:700;}
+.hm .l{font-size:10px;opacity:.6;margin-top:1px;}
+
+/* Tabs */
+.tabs{display:flex;gap:0;}
+.tab{padding:9px 18px;border:none;border-radius:10px 10px 0 0;font-size:12px;font-weight:600;cursor:pointer;color:#888;background:#e8e0d8;margin-right:3px;transition:all .15s;}
+.tab .tc{font-size:10px;opacity:.7;margin-left:4px;}
+.tab.active{color:#fff;}
+.tab.t-all.active{background:#3a485e;}
+.tab.t-hx.active{background:#a32d2d;}
+.tab.t-jj.active{background:#0f6e56;}
+.tab.t-lm.active{background:#6e0f5e;}
+.tab.t-po.active{background:#5a3e8a;}
+
+/* Panel */
+.panel{background:#fff;border-radius:0 10px 10px 10px;border:1px solid #e8e0d8;padding:14px 16px;margin-bottom:8px;}
+.panel.p-all{border-top:3px solid #3a485e;}
+.panel.p-hx {border-top:3px solid #a32d2d;}
+.panel.p-jj {border-top:3px solid #0f6e56;}
+.panel.p-lm {border-top:3px solid #6e0f5e;}
+.panel.p-po {border-top:3px solid #5a3e8a;}
+/* PO panel styles */
+.po-header-card{background:#f3f0f8;border:1px solid #c8b8e8;border-radius:10px;padding:16px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;}
+.po-title{font-size:15px;font-weight:700;color:#5a3e8a;margin-bottom:4px;}
+.po-meta{font-size:11px;color:#888;line-height:1.9;}
+.po-meta strong{color:#3a485e;}
+.po-stats{display:flex;gap:14px;flex-wrap:wrap;}
+.po-stat{text-align:center;background:#fff;border-radius:8px;padding:8px 14px;border:1px solid #e0d4f0;}
+.po-stat .pv{font-size:16px;font-weight:700;color:#5a3e8a;}
+.po-stat .pl{font-size:10px;color:#999;margin-top:1px;}
+.po-status-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;}
+.pos-pending{background:#fff8e6;color:#854f0b;border:1px solid #f5ddb0;}
+.pos-arrived{background:#edf7ed;color:#2d6b2d;border:1px solid #a8d8b0;}
+.po-tbl-wrap{overflow:auto;border-radius:8px;border:1px solid #e8e0d8;margin-bottom:8px;}
+.po-tbl-wrap table{width:100%;border-collapse:collapse;min-width:700px;}
+.po-tbl-wrap thead th{background:#f3f0f8;padding:7px 10px;text-align:left;font-size:10px;font-weight:600;color:#7a5ea8;border-bottom:1px solid #e0d4f0;white-space:nowrap;}
+.po-tbl-wrap tbody td{padding:7px 10px;border-bottom:1px solid #f5f1ec;font-size:12px;vertical-align:middle;}
+.po-tbl-wrap tbody tr:last-child td{border-bottom:none;}
+.po-tbl-wrap tbody tr:hover td{background:#faf8ff;}
+.po-qty-badge{display:inline-block;background:#e6f4ea;color:#2d6b2d;font-weight:700;padding:2px 8px;border-radius:4px;font-size:12px;}
+.po-note{font-size:11px;color:#aaa;margin-top:10px;padding:10px 14px;background:#faf8ff;border-radius:6px;border:1px dashed #c8b8e8;}
+.po-list{display:flex;flex-direction:column;gap:20px;}
+.po-po-card{border:1px solid #e0d4f0;border-radius:10px;overflow:hidden;}
+.po-sub-hdr{background:#f3f0f8;padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.po-sub-hdr:hover{background:#ebe6f5;}
+.po-sub-body{padding:14px 16px;}
+.po-tag{font-size:10px;font-weight:700;background:#5a3e8a;color:#fff;padding:2px 8px;border-radius:4px;}
+.po-arrow{font-size:10px;opacity:.5;margin-left:auto;transition:transform .2s;}
+
+
+/* Grade section cards */
+.grade-section{margin-bottom:8px;}
+.grade-hdr{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:7px;cursor:pointer;user-select:none;font-size:12px;font-weight:600;}
+.grade-hdr .arrow{font-size:10px;opacity:.5;transition:transform .2s;}
+.grade-hdr.open .arrow{transform:rotate(90deg);}
+.grade-body{overflow:hidden;}
+
+/* Grade header colors */
+.gh-A{background:#fff0f0;border:1px solid #f5c6c6;color:#a32d2d;}
+.gh-B{background:#fff6e6;border:1px solid #f5ddb0;color:#7a4800;}
+.gh-C{background:#eef4fd;border:1px solid #b5d4f4;color:#185fa5;}
+.gh-D{background:#f3f3f1;border:1px solid #ddd;color:#555;}
+.gh-NR{background:#f5f5f5;border:1px solid #e0e0e0;color:#999;}
+
+/* Grade badge in header */
+.g-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;color:#fff;}
+.gb-A{background:#e05050;}
+.gb-B{background:#e08a00;}
+.gb-C{background:#185fa5;}
+.gb-D{background:#777;}
+.gb-NR{background:#aaa;}
+.grade-hdr .gc-cnt{font-size:10px;font-weight:400;opacity:.7;margin-left:auto;}
+
+/* Stats row */
+.stats-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;background:#f7f3ef;padding:8px 12px;border-radius:7px;}
+.sr .sv{font-size:14px;font-weight:700;color:#3a485e;}
+.sr .sl{font-size:10px;color:#999;margin-top:1px;}
+
+/* Filters */
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.filter-bar .lbl{font-size:11px;color:#888;}
+.fbtn{padding:4px 10px;border-radius:99px;border:1px solid #d8d0c8;background:#fff;font-size:11px;cursor:pointer;color:#3a485e;transition:all .15s;}
+.fbtn:hover,.fbtn.active{background:#3a485e;color:#fff;border-color:#3a485e;}
+.fbtn.f-urgent.active{background:#a32d2d;border-color:#a32d2d;}
+.fbtn.f-reorder.active{background:#e08a00;border-color:#e08a00;}
+.fbtn.f-watch.active{background:#185fa5;border-color:#185fa5;}
+.fbtn.f-ok.active{background:#2d6b2d;border-color:#2d6b2d;}
+.search{padding:4px 9px;border:1px solid #d8d0c8;border-radius:6px;font-size:11px;background:#fff;color:#3a485e;outline:none;width:170px;}
+
+/* Status */
+.status-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 6px;border-radius:99px;white-space:nowrap;}
+.sb-urgent{background:#fff0f0;color:#a32d2d;}
+.sb-reorder{background:#fff6e6;color:#854f0b;}
+.sb-watch{background:#eef4fd;color:#185fa5;}
+.sb-ok{background:#edf7ed;color:#2d6b2d;}
+
+/* Legend */
+.legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center;font-size:11px;}
+
+/* Table */
+.tbl-wrap{overflow:auto;border-radius:7px;border:1px solid #e8e0d8;}
+table{width:100%;border-collapse:collapse;min-width:880px;}
+thead th{background:#f7f3ef;padding:6px 8px;text-align:left;font-size:10px;font-weight:600;color:#999;border-bottom:1px solid #ede8e2;white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{background:#ede8e2;}
+thead th.sort-asc::after{content:' ▲';font-size:9px;}
+thead th.sort-desc::after{content:' ▼';font-size:9px;}
+tbody td{padding:6px 8px;border-bottom:1px solid #f5f1ec;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#faf8f5;}
+tbody tr.row-nr td{opacity:.4;}
+tbody tr.row-nr td:first-child{opacity:1;}
+
+.type-b{font-size:10px;background:#f0ece6;color:#7a6a50;padding:1px 5px;border-radius:4px;white-space:nowrap;}
+.size-b{font-size:10px;background:#eef4fd;color:#185fa5;padding:1px 5px;border-radius:4px;}
+.grade-b{font-size:10px;font-weight:700;padding:1px 5px;border-radius:3px;}
+.gb2-A{background:#e05050;color:#fff;} .gb2-B{background:#e08a00;color:#fff;}
+.gb2-C{background:#185fa5;color:#fff;} .gb2-D{background:#777;color:#fff;} .gb2-NR{background:#ddd;color:#999;} .gb2-28CM{background:#e8e4de;color:#999;}
+.gh-28cm{background:#fafafa;border:1px dashed #ccc;color:#999;}
+.gb-28cm{background:#ccc;color:#fff;}
+.sug{font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;}
+.sug-has{background:#fff0f0;color:#a32d2d;} .sug-none{color:#aaa;} .sug-nr{background:#f0f0f0;color:#aaa;font-size:10px;}
+.qty-cell{display:flex;align-items:center;gap:4px;}
+.qty-n{font-weight:600;min-width:20px;text-align:right;}
+.qty-bar{height:4px;border-radius:2px;min-width:2px;opacity:.4;}
+.sku-c{font-size:10px;color:#ccc;font-family:monospace;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:3px;}
+
+.tbl-foot{font-size:11px;color:#aaa;text-align:right;margin-top:5px;}
+
+/* Grade section inside "all" tab — grouped accordion */
+.grade-sections-wrap{margin-bottom:4px;}
+
+/* Floating calculator */
+#calc-bubble{position:fixed;bottom:22px;right:22px;z-index:9999;}
+#calc-fab{width:48px;height:48px;border-radius:50%;background:#3a485e;color:#fff;border:none;font-size:19px;cursor:pointer;box-shadow:0 4px 14px rgba(58,72,94,.35);display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+#calc-fab:hover{transform:scale(1.08);}
+#calc-panel{display:none;position:absolute;bottom:56px;right:0;width:320px;background:#fff;border-radius:12px;box-shadow:0 8px 28px rgba(58,72,94,.2);border:1px solid #e8e0d8;overflow:hidden;}
+#calc-panel.open{display:block;}
+.cp-hdr{background:#3a485e;color:#fff;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;}
+.cp-t{font-size:12px;font-weight:600;}
+.cp-x{background:none;border:none;color:#fff;font-size:16px;cursor:pointer;opacity:.7;line-height:1;}
+.cp-x:hover{opacity:1;}
+.cp-tabs{display:flex;border-bottom:1px solid #e8e0d8;}
+.cp-tab{flex:1;padding:6px 0;font-size:11px;font-weight:600;border:none;background:#f7f3ef;color:#888;cursor:pointer;}
+.cp-tab.active{background:#fff;color:#3a485e;border-bottom:2px solid #3a485e;}
+.cp-body{padding:12px 14px;}
+.cp-f{margin-bottom:8px;}
+.cp-f label{font-size:10px;color:#999;display:block;margin-bottom:3px;}
+.cp-f input{width:100%;padding:6px 8px;border:1px solid #d8d0c8;border-radius:5px;font-size:13px;font-weight:600;color:#3a485e;outline:none;background:#faf8f5;}
+.cp-f input:focus{border-color:#3a485e;background:#fff;}
+.cp-res{background:#f7f3ef;border-radius:7px;padding:10px 12px;margin-top:8px;display:none;}
+.cp-rg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.cp-ri .rl{font-size:10px;color:#999;}
+.cp-ri .rv{font-size:13px;font-weight:700;color:#3a485e;margin-top:1px;}
+.cp-ri.hl .rv{color:#a32d2d;font-size:16px;} .cp-ri.bl .rv{color:#185fa5;font-size:16px;}
+.cp-hint{font-size:10px;color:#aaa;margin-top:4px;}
+.footer{text-align:center;font-size:11px;color:#aaa;margin-top:16px;padding-top:12px;border-top:1px solid #e8e0d8;}
+.po-badge{display:inline-block;font-size:9px;font-weight:700;background:#e6f4ea;color:#2d6b2d;border:1px solid #a8d8b0;border-radius:3px;padding:1px 4px;margin-left:4px;vertical-align:middle;}
+
+/* Checkbox & export */
+.cb-cell{width:32px;text-align:center;padding:6px 4px;}
+input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:#3a485e;}
+.export-bar{position:sticky;bottom:0;left:0;right:0;background:#3a485e;color:#fff;border-radius:0 0 10px 10px;padding:10px 16px;display:flex;align-items:center;gap:12px;font-size:12px;transition:all .2s;z-index:100;}
+.export-bar.hidden{display:none;}
+.export-bar .sel-count{font-weight:700;font-size:14px;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:99px;}
+.export-bar .exp-btn{padding:6px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.exp-btn-csv{background:#fff;color:#3a485e;}
+.exp-btn-csv:hover{background:#f0ece6;}
+.exp-btn-clear{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)!important;}
+.exp-btn-clear:hover{background:rgba(255,255,255,.25);}
+.exp-btn-all{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25)!important;font-size:11px;}
+.exp-btn-all:hover{background:rgba(255,255,255,.2);}
+thead th.cb-th{width:32px;padding:6px 4px;text-align:center;}
+.grade-filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.gfbtn{padding:4px 11px;border-radius:99px;border:1px solid #d8d0c8;background:#fff;font-size:11px;cursor:pointer;color:#3a485e;transition:all .15s;}
+.gfbtn:hover{opacity:.8;}
+.gfbtn.active{border-width:2px;}
+.gfbtn.gf-all.active{background:#3a485e;color:#fff;border-color:#3a485e;}
+.gfbtn.gf-A.active{background:#e05050;color:#fff;border-color:#e05050;}
+.gfbtn.gf-B.active{background:#e08a00;color:#fff;border-color:#e08a00;}
+.gfbtn.gf-C.active{background:#185fa5;color:#fff;border-color:#185fa5;}
+.gfbtn.gf-D.active{background:#777;color:#fff;border-color:#777;}
+.gfbtn.gf-NR.active{background:#aaa;color:#fff;border-color:#aaa;}
+/* Status legend with explanation */
+.status-legend{display:flex;gap:0;margin-bottom:12px;border:1px solid #e8e0d8;border-radius:8px;overflow:hidden;flex-wrap:wrap;}
+.sl-item{display:flex;align-items:flex-start;gap:8px;padding:8px 14px;border-right:1px solid #e8e0d8;flex:1;min-width:140px;}
+.sl-item:last-child{border-right:none;}
+.sl-dot{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0;}
+.sl-dot-urgent{background:#a32d2d;}
+.sl-dot-reorder{background:#e08a00;}
+.sl-dot-watch{background:#185fa5;}
+.sl-dot-ok{background:#2d6b2d;}
+.sl-text .sl-title{font-size:11px;font-weight:600;color:#3a485e;}
+.sl-text .sl-desc{font-size:10px;color:#999;margin-top:1px;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Top header -->
+<div class="hdr">
+  <div>
+    <h1>✈ 飛航模飾｜庫存補貨分析總覽</h1>
+    <div class="sub">資料截止：2026-03-29 ／ 含採購單 PP26021300024（4/15 到貨，已合併入庫存）／ 月均銷基於實際訂單 × 1.5x 成長係數</div>
+  </div>
+  <div class="hm-row">
+    <div class="hm"><div class="v">266 SKU</div><div class="l">三系列合計</div></div>
+    <div class="hm"><div class="v">NT$6,142,157</div><div class="l">總庫存市值</div></div>
+    <div class="hm"><div class="v" id="g-u">95 項</div><div class="l">🔴 緊急補貨</div></div>
+    <div class="hm"><div class="v" id="g-r">51 項</div><div class="l">🟡 應補貨</div></div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab t-all active" onclick="switchTab('all',this)">全部系列 <span class="tc">266</span></button>
+  <button class="tab t-hx" onclick="switchTab('航向好眠',this)">✈ 航向好眠 <span class="tc">149</span></button>
+  <button class="tab t-jj" onclick="switchTab('純淨天絲',this)">🌿 純淨天絲 <span class="tc">99</span></button>
+  <button class="tab t-lm" onclick="switchTab('時光旅棉',this)">🧵 時光旅棉 <span class="tc">18</span></button>
+  <button class="tab t-po" onclick="switchTab('po',this)">📋 採購單 <span class="tc">1</span></button>
+</div>
+
+<div class="panel p-all" id="main-panel">
+
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="sr"><div class="sv" id="ms-cnt">—</div><div class="sl">顯示 SKU</div></div>
+    <div class="sr"><div class="sv" id="ms-val">—</div><div class="sl">市值小計</div></div>
+    <div class="sr"><div class="sv" style="color:#a32d2d" id="ms-u">—</div><div class="sl">🔴 緊急</div></div>
+    <div class="sr"><div class="sv" style="color:#854f0b" id="ms-r">—</div><div class="sl">🟡 應補</div></div>
+    <div class="sr"><div class="sv" style="color:#185fa5" id="ms-w">—</div><div class="sl">🔵 留意</div></div>
+    <div class="sr"><div class="sv" style="color:#2d6b2d" id="ms-o">—</div><div class="sl">🟢 充裕</div></div>
+  </div>
+
+  <!-- Status legend with explanations -->
+  <div class="status-legend">
+    <div class="sl-item"><div class="sl-dot sl-dot-urgent"></div><div class="sl-text"><div class="sl-title">🔴 緊急補貨</div><div class="sl-desc">庫存低於 10 件</div></div></div>
+    <div class="sl-item"><div class="sl-dot sl-dot-reorder"></div><div class="sl-text"><div class="sl-title">🟡 應補貨</div><div class="sl-desc">庫存 10 ～ 20 件</div></div></div>
+    <div class="sl-item"><div class="sl-dot sl-dot-watch"></div><div class="sl-text"><div class="sl-title">🔵 需留意</div><div class="sl-desc">庫存 20 ～ 30 件</div></div></div>
+    <div class="sl-item"><div class="sl-dot sl-dot-ok"></div><div class="sl-text"><div class="sl-title">🟢 充裕</div><div class="sl-desc">庫存 30 件以上</div></div></div>
+    <div class="sl-item" style="background:#f9f9f9;flex:none;min-width:auto;"><div class="sl-text"><div class="sl-title" style="color:#aaa">⬜ 不補貨</div><div class="sl-desc" style="color:#ccc">已停止補貨色系</div></div></div>
+  </div>
+
+  <!-- Grade sections (shown when on a specific series tab, hidden for "all") -->
+  <div id="grade-sections" style="display:none">
+    <div class="grade-filter-bar" id="grade-filter-bar">
+      <span style="font-size:11px;color:#888;">等級：</span>
+      <button class="gfbtn gf-all active" onclick="setGrade('all',this)">全部等級</button>
+      <button class="gfbtn gf-A" onclick="setGrade('A',this)"><span style="background:#e05050;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px">A</span>最熱銷</button>
+      <button class="gfbtn gf-B" onclick="setGrade('B',this)"><span style="background:#e08a00;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px">B</span>穩定</button>
+      <button class="gfbtn gf-C" onclick="setGrade('C',this)"><span style="background:#185fa5;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px">C</span>不穩定</button>
+      <button class="gfbtn gf-D" id="grade-btn-D" onclick="setGrade('D',this)"><span style="background:#777;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px">D</span>冷門</button>
+      <button class="gfbtn gf-NR" id="grade-btn-NR" style="display:none" onclick="setGrade('NR',this)"><span style="background:#aaa;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:4px">—</span>不補貨</button>
+      <span style="margin-left:auto"></span>
+      <div class="filter-bar" style="margin:0">
+        <span class="lbl">狀態：</span>
+        <button class="fbtn active" onclick="setStatus('all',this)">全部</button>
+        <button class="fbtn f-urgent" onclick="setStatus('urgent',this)">🔴</button>
+        <button class="fbtn f-reorder" onclick="setStatus('reorder',this)">🟡</button>
+        <button class="fbtn f-watch" onclick="setStatus('watch',this)">🔵</button>
+        <button class="fbtn f-ok" onclick="setStatus('ok',this)">🟢</button>
+      </div>
+    </div>
+    <div id="grade-sections-inner"></div>
+    <!-- Grade sections export bar -->
+    <div class="export-bar hidden" id="export-bar-gs">
+      <span>已勾選</span>
+      <span class="sel-count" id="sel-count-gs">0</span>
+      <span>筆</span>
+      <button class="exp-btn exp-btn-all" onclick="selectAllGradeVisible()">勾選全部顯示</button>
+      <button class="exp-btn exp-btn-clear" onclick="clearAll()">取消全選</button>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:20px;">
+        <span style="text-align:right"><span style="font-size:10px;opacity:.7;display:block">採購成本合計</span><span id="sel-cost-gs" style="font-size:14px;font-weight:700;color:#ffd580">NT$—</span></span>
+        <span style="text-align:right"><span style="font-size:10px;opacity:.7;display:block">市值合計</span><span id="sel-val-gs" style="font-size:14px;font-weight:700">NT$—</span></span>
+      </span>
+      <button class="exp-btn exp-btn-csv" onclick="exportCSV()" style="margin-left:12px">⬇ 匯出 CSV</button>
+    </div>
+  </div>
+
+  <!-- Filter bar (shown in "all" mode or when grade sections hidden) -->
+  <div id="flat-filters">
+    <div class="filter-bar">
+      <span class="lbl">系列：</span>
+      <button class="fbtn flat-series active" data-series="all" onclick="setFlatSeries('all',this)">全部</button>
+      <button class="fbtn flat-series" data-series="航向好眠" onclick="setFlatSeries('航向好眠',this)" style="border-color:#a32d2d;color:#a32d2d">✈ 航向好眠</button>
+      <button class="fbtn flat-series" data-series="純淨天絲" onclick="setFlatSeries('純淨天絲',this)" style="border-color:#0f6e56;color:#0f6e56">🌿 純淨天絲</button>
+      <button class="fbtn flat-series" data-series="時光旅棉" onclick="setFlatSeries('時光旅棉',this)" style="border-color:#6e0f5e;color:#6e0f5e">🧵 時光旅棉</button>
+    </div>
+    <div class="filter-bar">
+      <span class="lbl">等級：</span>
+      <button class="fbtn flat-grade active" data-grade="all" onclick="setFlatGrade('all',this)">全部等級</button>
+      <button class="fbtn flat-grade" data-grade="A" onclick="setFlatGrade('A',this)"><span style="background:#e05050;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px">A</span>最熱銷</button>
+      <button class="fbtn flat-grade" data-grade="B" onclick="setFlatGrade('B',this)"><span style="background:#e08a00;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px">B</span>穩定</button>
+      <button class="fbtn flat-grade" data-grade="C" onclick="setFlatGrade('C',this)"><span style="background:#185fa5;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px">C</span>不穩定</button>
+      <button class="fbtn flat-grade" data-grade="D" onclick="setFlatGrade('D',this)"><span style="background:#777;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px">D</span>冷門</button>
+      <button class="fbtn flat-grade" data-grade="NR" onclick="setFlatGrade('NR',this)"><span style="background:#aaa;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px">—</span>不補貨</button>
+      <button class="fbtn flat-grade" data-grade="28CM" onclick="setFlatGrade('28CM',this)"><span style="background:#ccc;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;margin-right:3px">28</span>28cm 規格</button>
+    </div>
+    <div class="filter-bar">
+      <span class="lbl">狀態：</span>
+      <button class="fbtn active" onclick="setStatus('all',this)">全部</button>
+      <button class="fbtn f-urgent" onclick="setStatus('urgent',this)">🔴 緊急</button>
+      <button class="fbtn f-reorder" onclick="setStatus('reorder',this)">🟡 應補</button>
+      <button class="fbtn f-watch" onclick="setStatus('watch',this)">🔵 留意</button>
+      <button class="fbtn f-ok" onclick="setStatus('ok',this)">🟢 充裕</button>
+      <span style="margin-left:auto"></span>
+      <input class="search" id="searchBox" placeholder="搜尋品名 / 料品編號..." oninput="render()">
+    </div>
+    <div class="tbl-wrap"><table><thead><tr>
+      <th class="cb-th"><input type="checkbox" id="cb-all" onclick="toggleAllCb(this)" title="全選/取消"></th>
+      <th onclick="sort('status')" id="th-status">狀態</th>
+      <th onclick="sort('series')" id="th-series">系列</th>
+      <th onclick="sort('color_grade')" id="th-color_grade">色系等級</th>
+      <th onclick="sort('type')" id="th-type">品項</th>
+      <th onclick="sort('color')" id="th-color">色系</th>
+      <th onclick="sort('size')" id="th-size">尺寸</th>
+      <th onclick="sort('qty')" id="th-qty">庫存</th>
+      <th onclick="sort('months_stock')" id="th-months_stock">可售月數</th>
+      <th onclick="sort('monthly')" id="th-monthly">月均銷</th>
+      <th onclick="sort('suggest_qty')" id="th-suggest_qty">建議補貨量</th>
+      <th onclick="sort('price')" id="th-price">售價</th>
+      <th onclick="sort('cost')" id="th-cost">成本</th>
+      <th onclick="sort('value')" id="th-value">市值</th>
+      <th onclick="sort('sku')" id="th-sku">料品編號</th>
+    </tr></thead><tbody id="tbl"></tbody></table></div>
+    <div class="tbl-foot">顯示 <span id="show-cnt">—</span> 筆 市值合計 <span id="show-val" style="font-weight:600;color:#3a485e">—</span></div>
+  </div>
+
+</div>
+
+<!-- Export bar -->
+<div class="export-bar hidden" id="export-bar">
+  <span>已勾選</span>
+  <span class="sel-count" id="sel-count">0</span>
+  <span>筆</span>
+  <button class="exp-btn exp-btn-all" onclick="selectAllVisible()">勾選全部顯示</button>
+  <button class="exp-btn exp-btn-clear" onclick="clearAll()">取消全選</button>
+  <span style="margin-left:auto"></span>
+  <button class="exp-btn exp-btn-csv" onclick="exportCSV()">⬇ 匯出 CSV</button>
+</div>
+
+<!-- PO Panel -->
+<div id="po-panel" style="display:none"></div>
+
+<div class="footer">飛航模飾 Flight Mode ／ 航向好眠 + 純淨天絲 + 時光旅棉 庫存分析 ／ 2026-03-29</div>
+</div>
+
+<!-- Floating calculator -->
+<div id="calc-bubble">
+  <div id="calc-panel">
+    <div class="cp-hdr"><span class="cp-t">🚚 運費計算機</span><button class="cp-x" onclick="tCalc()">✕</button></div>
+    <div class="cp-tabs">
+      <button class="cp-tab active" id="ctf" onclick="swCTab('f')">棧板數→運費</button>
+      <button class="cp-tab" id="ctr" onclick="swCTab('r')">預算→棧板數</button>
+    </div>
+    <div class="cp-body">
+      <div id="cp-f">
+        <div class="cp-f"><label>每棧板運費（NT$）</label><input id="cfu" type="number" placeholder="例：15,000" oninput="cF()"></div>
+        <div class="cp-f"><label>棧板數量（板）</label><input id="cfq" type="number" placeholder="例：3" step="0.5" oninput="cF()"></div>
+        <div class="cp-f"><label>附加費用（NT$，選填）</label><input id="cfe" type="number" placeholder="報關費等" oninput="cF()"></div>
+        <div class="cp-res" id="fres">
+          <div class="cp-rg"><div class="cp-ri"><div class="rl">棧板小計</div><div class="rv" id="cfs"></div></div><div class="cp-ri"><div class="rl">附加費用</div><div class="rv" id="cfx"></div></div></div>
+          <div style="border-top:1px dashed #ddd;margin:6px 0;"></div>
+          <div class="cp-ri hl"><div class="rl">總運費</div><div class="rv" id="cft"></div></div>
+          <div class="cp-hint" id="cfp"></div>
+        </div>
+      </div>
+      <div id="cp-r" style="display:none">
+        <div class="cp-f"><label>可用預算（NT$）</label><input id="crb" type="number" placeholder="例：50,000" oninput="cR()"></div>
+        <div class="cp-f"><label>每棧板運費（NT$）</label><input id="cru" type="number" placeholder="例：15,000" oninput="cR()"></div>
+        <div class="cp-f"><label>預扣附加費（NT$，選填）</label><input id="cre" type="number" placeholder="選填" oninput="cR()"></div>
+        <div class="cp-res" id="rres">
+          <div class="cp-ri bl"><div class="rl">可裝棧板數</div><div class="rv" id="crp"></div></div>
+          <div style="border-top:1px dashed #ddd;margin:6px 0;"></div>
+          <div class="cp-rg"><div class="cp-ri"><div class="rl">可用餘額</div><div class="rv" id="crn"></div></div><div class="cp-ri"><div class="rl">實際花費</div><div class="rv" id="crd"></div></div></div>
+          <div class="cp-hint" id="crh"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="calc-fab" onclick="tCalc()" title="運費計算機">🚚</button>
+</div>
+
+<script>
+const DATA = [{"sku":"FMBSTCD000637","type":"枕頭套床包組","name":"午茶之旅","size":"雙人","qty":163,"price":1990,"grade":"A","monthly":6.43,"months_stock":25.3,"reorder_point":30.4,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","po_incoming":82,"cost":555},{"sku":"FMBSTCK000022","type":"枕頭套床包組","name":"星辰灰藍","size":"特大","qty":56,"price":2390,"grade":"A","monthly":3.38,"months_stock":16.6,"reorder_point":16.0,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":635},{"sku":"FMBSTCQ000637","type":"枕頭套床包組","name":"午茶之旅","size":"加大","qty":52,"price":2190,"grade":"A","monthly":4.5,"months_stock":11.6,"reorder_point":21.3,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","cost":595},{"sku":"FMBSTCD000022","type":"枕頭套床包組","name":"星辰灰藍","size":"雙人","qty":46,"price":1990,"grade":"A","monthly":7.93,"months_stock":5.8,"reorder_point":37.5,"suggest_qty":12,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":555},{"sku":"FMBSTCQ000022","type":"枕頭套床包組","name":"星辰灰藍","size":"加大","qty":91,"price":2190,"grade":"A","monthly":3.25,"months_stock":28.0,"reorder_point":15.4,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","po_incoming":47,"cost":595},{"sku":"FMBSTCQ000638","type":"枕頭套床包組","name":"南法之旅","size":"加大","qty":72,"price":2190,"grade":"C","monthly":3.43,"months_stock":21.0,"reorder_point":12.8,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","po_incoming":35,"cost":595},{"sku":"FMBSCTD000695","type":"枕頭套床包組","name":"輕輕蔚藍｜淺雲米","size":"雙人","qty":60,"price":1990,"grade":"B","monthly":3.9,"months_stock":15.4,"reorder_point":16.5,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","po_incoming":28,"cost":555},{"sku":"FMBSCTD000760","type":"枕頭套床包組","name":"暮丘小徑","size":"雙人","qty":55,"price":1990,"grade":"B","monthly":5.0,"months_stock":11.0,"reorder_point":21.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","po_incoming":28,"cost":555},{"sku":"FMBSCTQ000833","type":"枕頭套床包組","name":"薰風薄霧","size":"加大","qty":26,"price":2190,"grade":"D","monthly":0.5,"months_stock":52.0,"reorder_point":1.6,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":595},{"sku":"FMBSCTD000696","type":"枕頭套床包組","name":"漫漫綠茵｜淺米杏","size":"雙人","qty":21,"price":1990,"grade":"D","monthly":1.5,"months_stock":14.0,"reorder_point":4.8,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":555},{"sku":"FMBSTCD000638","type":"枕頭套床包組","name":"南法之旅","size":"雙人","qty":19,"price":1990,"grade":"C","monthly":5.25,"months_stock":3.6,"reorder_point":19.6,"suggest_qty":8,"status":"reorder","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":555},{"sku":"FMBSCTQ000789","type":"枕頭套床包組","name":"春野漫遊｜春暮粉","size":"加大","qty":21,"price":2190,"grade":"B","monthly":2.5,"months_stock":8.4,"reorder_point":10.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"春野漫遊｜春暮粉","color_grade":"B","cost":595},{"sku":"FMBSCTQ000695-1","type":"枕頭套床包組","name":"輕輕蔚藍｜天空藍","size":"加大","qty":11,"price":2190,"grade":"B","monthly":3.75,"months_stock":2.9,"reorder_point":15.9,"suggest_qty":10,"status":"reorder","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜天空藍","color_grade":"B","cost":595},{"sku":"FMBSCTK000760","type":"枕頭套床包組","name":"暮丘小徑","size":"特大","qty":22,"price":2390,"grade":"B","monthly":2.4,"months_stock":9.2,"reorder_point":10.1,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","po_incoming":11,"cost":635},{"sku":"FMBSCTD000788","type":"枕頭套床包組","name":"月球白灰｜月光白","size":"雙人","qty":16,"price":1990,"grade":"C","monthly":2.25,"months_stock":7.1,"reorder_point":8.4,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰｜月光白","color_grade":"C","cost":555},{"sku":"FMBSCTD000789","type":"枕頭套床包組","name":"春野漫遊｜春暮粉","size":"雙人","qty":16,"price":1990,"grade":"B","monthly":3.9,"months_stock":4.1,"reorder_point":16.5,"suggest_qty":6,"status":"reorder","series":"航向好眠","no_restock":false,"color":"春野漫遊｜春暮粉","color_grade":"B","cost":555},{"sku":"FMBSTCQ000016","type":"枕頭套床包組","name":"月球白灰｜月球灰","size":"加大","qty":13,"price":2190,"grade":"C","monthly":3.0,"months_stock":4.3,"reorder_point":11.2,"suggest_qty":4,"status":"reorder","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":595},{"sku":"FMBSCTQ000696","type":"枕頭套床包組","name":"漫漫綠茵｜淺米杏","size":"加大","qty":14,"price":2190,"grade":"D","monthly":0.5,"months_stock":28.0,"reorder_point":1.6,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":595},{"sku":"FMBSCTQ000781","type":"枕頭套床包組","name":"海嶼漫迴","size":"加大","qty":13,"price":2190,"grade":"A","monthly":5.7,"months_stock":2.3,"reorder_point":26.9,"suggest_qty":23,"status":"reorder","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":595},{"sku":"FMBSCTS000696","type":"枕頭套床包組","name":"漫漫綠茵｜淺米杏","size":"單人","qty":15,"price":1790,"grade":"D","monthly":1.5,"months_stock":10.0,"reorder_point":4.8,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":430},{"sku":"FMBSCTD000761","type":"枕頭套床包組","name":"春野漫遊｜野曦杏","size":"雙人","qty":14,"price":1990,"grade":"B","monthly":6.0,"months_stock":2.3,"reorder_point":25.4,"suggest_qty":18,"status":"reorder","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":555},{"sku":"FMBSCTS000695","type":"枕頭套床包組","name":"輕輕蔚藍｜淺雲米","size":"單人","qty":13,"price":1790,"grade":"B","monthly":1.5,"months_stock":8.7,"reorder_point":6.3,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":430},{"sku":"FMBSCTQ000761","type":"枕頭套床包組","name":"春野漫遊｜野曦杏","size":"加大","qty":14,"price":2190,"grade":"B","monthly":1.88,"months_stock":7.4,"reorder_point":7.9,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":595},{"sku":"FMBSCTQ000788","type":"枕頭套床包組","name":"月球白灰｜月光白","size":"加大","qty":14,"price":2190,"grade":"C","monthly":0.5,"months_stock":28.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰｜月光白","color_grade":"C","cost":595},{"sku":"FMBSTCD000832","type":"枕頭套床包組","name":"暖陽坡地","size":"雙人","qty":1,"price":1990,"grade":"B","monthly":6.0,"months_stock":0.2,"reorder_point":25.4,"suggest_qty":18,"status":"urgent","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":555},{"sku":"FMBSCTS000782","type":"枕頭套床包組","name":"山徑微行","size":"單人","qty":11,"price":1790,"grade":"C","monthly":1.5,"months_stock":7.3,"reorder_point":5.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":430},{"sku":"FMBSTCS000016","type":"枕頭套床包組","name":"月球白灰｜月球灰","size":"單人","qty":10,"price":1790,"grade":"C","monthly":1.5,"months_stock":6.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":430},{"sku":"FMBSTCS000022","type":"枕頭套床包組","name":"星辰灰藍","size":"單人","qty":10,"price":1790,"grade":"A","monthly":4.88,"months_stock":2.0,"reorder_point":23.1,"suggest_qty":20,"status":"reorder","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":430},{"sku":"FMBSCTK000695","type":"枕頭套床包組","name":"輕輕蔚藍｜淺雲米","size":"特大","qty":9,"price":2390,"grade":"B","monthly":1.5,"months_stock":6.0,"reorder_point":6.3,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":635},{"sku":"FMBSCTQ000695","type":"枕頭套床包組","name":"輕輕蔚藍｜淺雲米","size":"加大","qty":9,"price":2190,"grade":"B","monthly":1.5,"months_stock":6.0,"reorder_point":6.3,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":595},{"sku":"FMBSTCS000637","type":"枕頭套床包組","name":"午茶之旅","size":"單人","qty":7,"price":1790,"grade":"A","monthly":4.0,"months_stock":1.8,"reorder_point":18.9,"suggest_qty":16,"status":"urgent","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","cost":430},{"sku":"FMBSTCD000833","type":"枕頭套床包組","name":"薰風薄霧","size":"雙人","qty":7,"price":1990,"grade":"D","monthly":0.5,"months_stock":14.0,"reorder_point":1.6,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":555},{"sku":"FMBSCTD000781","type":"枕頭套床包組","name":"海嶼漫迴","size":"雙人","qty":4,"price":1990,"grade":"A","monthly":6.3,"months_stock":0.6,"reorder_point":29.8,"suggest_qty":25,"status":"urgent","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":555},{"sku":"FMBSTCS000638","type":"枕頭套床包組","name":"南法之旅","size":"單人","qty":8,"price":1790,"grade":"C","monthly":3.6,"months_stock":2.2,"reorder_point":13.4,"suggest_qty":9,"status":"reorder","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":430},{"sku":"FMBSCTK000696-1","type":"枕頭套床包組","name":"漫漫綠茵｜晨霧綠","size":"特大","qty":6,"price":2390,"grade":"D","monthly":2.0,"months_stock":3.0,"reorder_point":6.5,"suggest_qty":3,"status":"urgent","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜晨霧綠","color_grade":"D","cost":635},{"sku":"FMBSCTQ000760","type":"枕頭套床包組","name":"暮丘小徑","size":"加大","qty":4,"price":2190,"grade":"B","monthly":2.1,"months_stock":1.9,"reorder_point":8.9,"suggest_qty":6,"status":"urgent","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","cost":595},{"sku":"FMBSCTS000760","type":"枕頭套床包組","name":"暮丘小徑","size":"單人","qty":14,"price":1790,"grade":"B","monthly":2.0,"months_stock":7.0,"reorder_point":8.5,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","po_incoming":7,"cost":430},{"sku":"FMBSCTD000696-1","type":"枕頭套床包組","name":"漫漫綠茵｜晨霧綠","size":"雙人","qty":5,"price":1990,"grade":"D","monthly":1.5,"months_stock":3.3,"reorder_point":4.8,"suggest_qty":2,"status":"watch","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜晨霧綠","color_grade":"D","cost":555},{"sku":"FMBSCTK000696","type":"枕頭套床包組","name":"漫漫綠茵｜淺米杏","size":"特大","qty":5,"price":2390,"grade":"D","monthly":0.5,"months_stock":10.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":635},{"sku":"FMBSTCK000021","type":"枕頭套床包組","name":"迷霧咖粉","size":"特大","qty":4,"price":2390,"grade":"D","monthly":1.5,"months_stock":2.7,"reorder_point":4.8,"suggest_qty":3,"status":"urgent","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":635},{"sku":"FMBSTCK000016","type":"枕頭套床包組","name":"月球白灰｜月球灰","size":"特大","qty":4,"price":2390,"grade":"C","monthly":2.25,"months_stock":1.8,"reorder_point":8.4,"suggest_qty":6,"status":"urgent","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":635},{"sku":"FMBSTCK000638","type":"枕頭套床包組","name":"南法之旅","size":"特大","qty":4,"price":2390,"grade":"C","monthly":2.25,"months_stock":1.8,"reorder_point":8.4,"suggest_qty":6,"status":"urgent","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":635},{"sku":"FMBSCTD000782","type":"枕頭套床包組","name":"山徑微行","size":"雙人","qty":8,"price":1990,"grade":"C","monthly":5.25,"months_stock":1.5,"reorder_point":19.6,"suggest_qty":13,"status":"urgent","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":555},{"sku":"FMBSCTS000761","type":"枕頭套床包組","name":"春野漫遊｜野曦杏","size":"單人","qty":9,"price":1790,"grade":"B","monthly":1.5,"months_stock":6.0,"reorder_point":6.3,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":430},{"sku":"FMBSCTQ000832","type":"枕頭套床包組","name":"暖陽坡地","size":"加大","qty":1,"price":2190,"grade":"B","monthly":0.5,"months_stock":2.0,"reorder_point":2.1,"suggest_qty":2,"status":"urgent","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":595},{"sku":"FMBSTCD000016","type":"枕頭套床包組","name":"月球白灰｜月球灰","size":"雙人","qty":3,"price":1990,"grade":"C","monthly":5.0,"months_stock":0.6,"reorder_point":18.6,"suggest_qty":12,"status":"urgent","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":555},{"sku":"FMBSTCK000637","type":"枕頭套床包組","name":"午茶之旅","size":"特大","qty":2,"price":2390,"grade":"A","monthly":2.25,"months_stock":0.9,"reorder_point":10.6,"suggest_qty":9,"status":"urgent","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","cost":635},{"sku":"FMBSCTK000782","type":"枕頭套床包組","name":"山徑微行","size":"特大","qty":8,"price":2390,"grade":"C","monthly":1.5,"months_stock":5.3,"reorder_point":5.6,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":635},{"sku":"FMBSCTS000788","type":"枕頭套床包組","name":"月球白灰｜月光白","size":"單人","qty":2,"price":1790,"grade":"C","monthly":1.5,"months_stock":1.3,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","series":"航向好眠","no_restock":false,"color":"月球白灰｜月光白","color_grade":"C","cost":430},{"sku":"FMBSCTS000789","type":"枕頭套床包組","name":"春野漫遊｜春暮粉","size":"單人","qty":1,"price":1790,"grade":"B","monthly":3.75,"months_stock":0.3,"reorder_point":15.9,"suggest_qty":11,"status":"urgent","series":"航向好眠","no_restock":false,"color":"春野漫遊｜春暮粉","color_grade":"B","cost":430},{"sku":"FMBSCTK000833","type":"枕頭套床包組","name":"薰風薄霧","size":"特大","qty":2,"price":2390,"grade":"D","monthly":0.5,"months_stock":4.0,"reorder_point":1.6,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":635},{"sku":"FMBSCTK000695-1","type":"枕頭套床包組","name":"輕輕蔚藍｜天空藍","size":"特大","qty":1,"price":2390,"grade":"B","monthly":1.5,"months_stock":0.7,"reorder_point":6.3,"suggest_qty":4,"status":"urgent","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜天空藍","color_grade":"B","cost":635},{"sku":"FMBSCTQ000696-1","type":"枕頭套床包組","name":"漫漫綠茵｜晨霧綠","size":"加大","qty":5,"price":2190,"grade":"D","monthly":3.75,"months_stock":1.3,"reorder_point":12.1,"suggest_qty":8,"status":"urgent","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜晨霧綠","color_grade":"D","cost":595},{"sku":"FMBSCTK000761","type":"枕頭套床包組","name":"春野漫遊｜野曦杏","size":"特大","qty":23,"price":2390,"grade":"B","monthly":0.5,"months_stock":46.0,"reorder_point":2.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":635},{"sku":"FMBSCTQ000782","type":"枕頭套床包組","name":"山徑微行","size":"加大","qty":1,"price":2190,"grade":"C","monthly":1.5,"months_stock":0.7,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":595},{"sku":"FMATTCD000022","type":"兩用被套","name":"星辰灰藍","size":"雙人","qty":45,"price":2990,"grade":"A","monthly":2.4,"months_stock":18.8,"reorder_point":11.3,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":660},{"sku":"FMATTCD000637","type":"兩用被套","name":"午茶之旅","size":"雙人","qty":45,"price":2990,"grade":"A","monthly":2.79,"months_stock":16.1,"reorder_point":13.2,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","cost":660},{"sku":"FMATTCD000782","type":"兩用被套","name":"山徑微行","size":"雙人","qty":31,"price":2990,"grade":"C","monthly":2.62,"months_stock":11.8,"reorder_point":9.8,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":660},{"sku":"FMATTCD000016","type":"兩用被套","name":"月球白灰｜月球灰","size":"雙人","qty":47,"price":2990,"grade":"C","monthly":3.0,"months_stock":15.7,"reorder_point":11.2,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","po_incoming":20,"cost":660},{"sku":"FMATTCD000695","type":"兩用被套","name":"輕輕蔚藍｜淺雲米","size":"雙人","qty":42,"price":2990,"grade":"B","monthly":2.62,"months_stock":16.0,"reorder_point":11.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","po_incoming":20,"cost":660},{"sku":"FMATTCD000760","type":"兩用被套","name":"暮丘小徑","size":"雙人","qty":39,"price":2990,"grade":"B","monthly":2.1,"months_stock":18.6,"reorder_point":8.9,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","po_incoming":20,"cost":660},{"sku":"FMATTCD000696","type":"兩用被套","name":"漫漫綠茵｜淺米杏","size":"雙人","qty":17,"price":2990,"grade":"D","monthly":2.0,"months_stock":8.5,"reorder_point":6.5,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":660},{"sku":"FMATTCK000022","type":"兩用被套","name":"星辰灰藍","size":"特大","qty":11,"price":3490,"grade":"A","monthly":1.5,"months_stock":7.3,"reorder_point":7.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":735},{"sku":"FMATTCD000833","type":"兩用被套","name":"薰風薄霧","size":"雙人","qty":8,"price":2990,"grade":"D","monthly":0.5,"months_stock":16.0,"reorder_point":1.6,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":660},{"sku":"FMATTCS000016","type":"兩用被套","name":"月球白灰｜月球灰","size":"單人","qty":11,"price":2690,"grade":"C","monthly":1.5,"months_stock":7.3,"reorder_point":5.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":590},{"sku":"FMATTCD000761","type":"兩用被套","name":"春野漫遊｜野曦杏","size":"雙人","qty":9,"price":2990,"grade":"B","monthly":3.38,"months_stock":2.7,"reorder_point":14.3,"suggest_qty":10,"status":"reorder","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":660},{"sku":"FMATTCD000832","type":"兩用被套","name":"暖陽坡地","size":"雙人","qty":6,"price":2990,"grade":"B","monthly":1.5,"months_stock":4.0,"reorder_point":6.3,"suggest_qty":3,"status":"urgent","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":660},{"sku":"FMATTCK000637","type":"兩用被套","name":"午茶之旅","size":"特大","qty":19,"price":3490,"grade":"A","monthly":1.5,"months_stock":12.7,"reorder_point":7.1,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","po_incoming":10,"cost":735},{"sku":"FMATTCK000696","type":"兩用被套","name":"漫漫綠茵｜淺米杏","size":"特大","qty":7,"price":3490,"grade":"D","monthly":0.5,"months_stock":14.0,"reorder_point":1.6,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":735},{"sku":"FMATTCS000696","type":"兩用被套","name":"漫漫綠茵｜淺米杏","size":"單人","qty":10,"price":2690,"grade":"D","monthly":0.5,"months_stock":20.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":590},{"sku":"FMATTCS000021","type":"兩用被套","name":"迷霧咖粉","size":"單人","qty":7,"price":2690,"grade":"D","monthly":1.5,"months_stock":4.7,"reorder_point":4.8,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":590},{"sku":"FMATTCK000638","type":"兩用被套","name":"南法之旅","size":"特大","qty":11,"price":3490,"grade":"C","monthly":1.5,"months_stock":7.3,"reorder_point":5.6,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","po_incoming":5,"cost":735},{"sku":"FMATTCK000695","type":"兩用被套","name":"輕輕蔚藍｜淺雲米","size":"特大","qty":5,"price":3490,"grade":"B","monthly":1.5,"months_stock":3.3,"reorder_point":6.3,"suggest_qty":4,"status":"reorder","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":735},{"sku":"FMATTCK000761","type":"兩用被套","name":"春野漫遊｜野曦杏","size":"特大","qty":6,"price":3490,"grade":"B","monthly":1.5,"months_stock":4.0,"reorder_point":6.3,"suggest_qty":3,"status":"reorder","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":735},{"sku":"FMATTCS000695","type":"兩用被套","name":"輕輕蔚藍｜淺雲米","size":"單人","qty":6,"price":2690,"grade":"B","monthly":1.5,"months_stock":4.0,"reorder_point":6.3,"suggest_qty":3,"status":"reorder","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":590},{"sku":"FMATTCD000638","type":"兩用被套","name":"南法之旅","size":"雙人","qty":5,"price":2990,"grade":"C","monthly":2.62,"months_stock":1.9,"reorder_point":9.8,"suggest_qty":7,"status":"urgent","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":660},{"sku":"FMATTCK000760","type":"兩用被套","name":"暮丘小徑","size":"特大","qty":10,"price":3490,"grade":"B","monthly":2.0,"months_stock":5.0,"reorder_point":8.5,"suggest_qty":3,"status":"reorder","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","po_incoming":5,"cost":735},{"sku":"FMATTCK000782","type":"兩用被套","name":"山徑微行","size":"特大","qty":5,"price":3490,"grade":"C","monthly":1.5,"months_stock":3.3,"reorder_point":5.6,"suggest_qty":3,"status":"reorder","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":735},{"sku":"FMATTCS000637","type":"兩用被套","name":"午茶之旅","size":"單人","qty":9,"price":2690,"grade":"A","monthly":1.88,"months_stock":4.8,"reorder_point":8.9,"suggest_qty":4,"status":"urgent","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","po_incoming":5,"cost":590},{"sku":"FMATTCS000782","type":"兩用被套","name":"山徑微行","size":"單人","qty":5,"price":2690,"grade":"C","monthly":1.5,"months_stock":3.3,"reorder_point":5.6,"suggest_qty":3,"status":"reorder","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":590},{"sku":"FMATTCK000833","type":"兩用被套","name":"薰風薄霧","size":"特大","qty":4,"price":3490,"grade":"D","monthly":0.5,"months_stock":8.0,"reorder_point":1.6,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":735},{"sku":"FMATTCD000781","type":"兩用被套","name":"海嶼漫迴","size":"雙人","qty":0,"price":2990,"grade":"A","monthly":5.7,"months_stock":0.0,"reorder_point":26.9,"suggest_qty":23,"status":"urgent","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":660},{"sku":"FMATTCK000832","type":"兩用被套","name":"暖陽坡地","size":"特大","qty":2,"price":3490,"grade":"B","monthly":0.5,"months_stock":4.0,"reorder_point":2.1,"suggest_qty":1,"status":"urgent","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":735},{"sku":"FMATTCS000833","type":"兩用被套","name":"薰風薄霧","size":"單人","qty":4,"price":2690,"grade":"D","monthly":0.5,"months_stock":8.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":590},{"sku":"FMATTCS000638","type":"兩用被套","name":"南法之旅","size":"單人","qty":4,"price":2690,"grade":"C","monthly":3.0,"months_stock":1.3,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":590},{"sku":"FMATTCK000021","type":"兩用被套","name":"迷霧咖粉","size":"特大","qty":1,"price":3490,"grade":"D","monthly":1.5,"months_stock":0.7,"reorder_point":4.8,"suggest_qty":3,"status":"urgent","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":735},{"sku":"FMATTCS000832","type":"兩用被套","name":"暖陽坡地","size":"單人","qty":3,"price":2690,"grade":"B","monthly":0.5,"months_stock":6.0,"reorder_point":2.1,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":590},{"sku":"FMATTCK000016","type":"兩用被套","name":"月球白灰｜月球灰","size":"特大","qty":1,"price":3490,"grade":"C","monthly":1.5,"months_stock":0.7,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":735},{"sku":"FMATTCS000781","type":"兩用被套","name":"海嶼漫迴","size":"單人","qty":2,"price":2690,"grade":"A","monthly":2.5,"months_stock":0.8,"reorder_point":11.8,"suggest_qty":10,"status":"urgent","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":590},{"sku":"FMATTCK000781","type":"兩用被套","name":"海嶼漫迴","size":"特大","qty":1,"price":3490,"grade":"A","monthly":2.25,"months_stock":0.4,"reorder_point":10.6,"suggest_qty":9,"status":"urgent","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":735},{"sku":"FMDUTCS000021","type":"薄被套","name":"迷霧咖粉","size":"單人","qty":25,"price":1790,"grade":"D","monthly":0.5,"months_stock":50.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":495},{"sku":"FMDUTCD000016","type":"薄被套","name":"月球白灰｜月球灰","size":"雙人","qty":29,"price":1990,"grade":"C","monthly":1.5,"months_stock":19.3,"reorder_point":5.6,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","po_incoming":6,"cost":520},{"sku":"FMDUTCK000021","type":"薄被套","name":"迷霧咖粉","size":"特大","qty":18,"price":2490,"grade":"D","monthly":0.5,"months_stock":36.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":615},{"sku":"FMDUTCD000022","type":"薄被套","name":"星辰灰藍","size":"雙人","qty":17,"price":1990,"grade":"A","monthly":3.0,"months_stock":5.7,"reorder_point":14.2,"suggest_qty":4,"status":"reorder","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":520},{"sku":"FMDUTCD000760","type":"薄被套","name":"暮丘小徑","size":"雙人","qty":21,"price":1990,"grade":"B","monthly":1.5,"months_stock":14.0,"reorder_point":6.3,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","po_incoming":6,"cost":520},{"sku":"FMDUTCD000781","type":"薄被套","name":"海嶼漫迴","size":"雙人","qty":28,"price":1990,"grade":"A","monthly":3.5,"months_stock":8.0,"reorder_point":16.5,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","po_incoming":12,"cost":520},{"sku":"FMDUTCD000782","type":"薄被套","name":"山徑微行","size":"雙人","qty":15,"price":1990,"grade":"C","monthly":1.5,"months_stock":10.0,"reorder_point":5.6,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":520},{"sku":"FMDUTCK000695","type":"薄被套","name":"輕輕蔚藍｜淺雲米","size":"特大","qty":15,"price":2490,"grade":"B","monthly":1.5,"months_stock":10.0,"reorder_point":6.3,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":615},{"sku":"FMDUTCS000022","type":"薄被套","name":"星辰灰藍","size":"單人","qty":14,"price":1790,"grade":"A","monthly":1.5,"months_stock":9.3,"reorder_point":7.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":495},{"sku":"FMDUTCD000638","type":"薄被套","name":"南法之旅","size":"雙人","qty":14,"price":1990,"grade":"C","monthly":1.5,"months_stock":9.3,"reorder_point":5.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":520},{"sku":"FMDUTCS000760","type":"薄被套","name":"暮丘小徑","size":"單人","qty":12,"price":1790,"grade":"B","monthly":0.5,"months_stock":24.0,"reorder_point":2.1,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","cost":495},{"sku":"FMDUTCS000637","type":"薄被套","name":"午茶之旅","size":"單人","qty":11,"price":1790,"grade":"A","monthly":2.0,"months_stock":5.5,"reorder_point":9.5,"suggest_qty":3,"status":"watch","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","cost":495},{"sku":"FMDUTCD000637","type":"薄被套","name":"午茶之旅","size":"雙人","qty":18,"price":1990,"grade":"A","monthly":1.8,"months_stock":10.0,"reorder_point":8.5,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","po_incoming":9,"cost":520},{"sku":"FMDUTCD000021","type":"薄被套","name":"迷霧咖粉","size":"雙人","qty":5,"price":1990,"grade":"D","monthly":3.0,"months_stock":1.7,"reorder_point":9.7,"suggest_qty":6,"status":"urgent","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":520},{"sku":"FMDUTCD000761","type":"薄被套","name":"春野漫遊｜野曦杏","size":"雙人","qty":9,"price":1990,"grade":"B","monthly":2.0,"months_stock":4.5,"reorder_point":8.5,"suggest_qty":3,"status":"watch","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":520},{"sku":"FMDUTCS000016","type":"薄被套","name":"月球白灰｜月球灰","size":"單人","qty":9,"price":1790,"grade":"C","monthly":0.5,"months_stock":18.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":495},{"sku":"FMDUTCK000022","type":"薄被套","name":"星辰灰藍","size":"特大","qty":8,"price":2490,"grade":"A","monthly":0.5,"months_stock":16.0,"reorder_point":2.4,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":615},{"sku":"FMDUTCS000696","type":"薄被套","name":"漫漫綠茵｜淺米杏","size":"單人","qty":8,"price":1790,"grade":"D","monthly":0.5,"months_stock":16.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":495},{"sku":"FMDUTCD000695","type":"薄被套","name":"輕輕蔚藍｜淺雲米","size":"雙人","qty":12,"price":1990,"grade":"B","monthly":2.5,"months_stock":4.8,"reorder_point":10.6,"suggest_qty":4,"status":"reorder","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","po_incoming":6,"cost":520},{"sku":"FMDUTCK000696","type":"薄被套","name":"漫漫綠茵｜淺米杏","size":"特大","qty":7,"price":2490,"grade":"D","monthly":0.5,"months_stock":14.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":615},{"sku":"FMDUTCK000637","type":"薄被套","name":"午茶之旅","size":"特大","qty":10,"price":2490,"grade":"A","monthly":0.5,"months_stock":20.0,"reorder_point":2.4,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","cost":615},{"sku":"FMDUTCS000695","type":"薄被套","name":"輕輕蔚藍｜淺雲米","size":"單人","qty":7,"price":1790,"grade":"B","monthly":0.5,"months_stock":14.0,"reorder_point":2.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":495},{"sku":"FMDUTCD000832","type":"薄被套","name":"暖陽坡地","size":"雙人","qty":7,"price":1990,"grade":"B","monthly":0.5,"months_stock":14.0,"reorder_point":2.1,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":520},{"sku":"FMDUTCD000833","type":"薄被套","name":"薰風薄霧","size":"雙人","qty":10,"price":1990,"grade":"D","monthly":0.5,"months_stock":20.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":520},{"sku":"FMDUTCK000760","type":"薄被套","name":"暮丘小徑","size":"特大","qty":6,"price":2490,"grade":"B","monthly":0.5,"months_stock":12.0,"reorder_point":2.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","cost":615},{"sku":"FMDUTCK000782","type":"薄被套","name":"山徑微行","size":"特大","qty":4,"price":2490,"grade":"C","monthly":0.5,"months_stock":8.0,"reorder_point":1.9,"suggest_qty":0,"status":"urgent","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":615},{"sku":"FMDUTCK000638","type":"薄被套","name":"南法之旅","size":"特大","qty":4,"price":2490,"grade":"C","monthly":1.5,"months_stock":2.7,"reorder_point":5.6,"suggest_qty":4,"status":"reorder","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":615},{"sku":"FMDUTCK000016","type":"薄被套","name":"月球白灰｜月球灰","size":"特大","qty":4,"price":2490,"grade":"C","monthly":3.0,"months_stock":1.3,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":615},{"sku":"FMDUTCK000761","type":"薄被套","name":"春野漫遊｜野曦杏","size":"特大","qty":4,"price":2490,"grade":"B","monthly":2.25,"months_stock":1.8,"reorder_point":9.5,"suggest_qty":7,"status":"urgent","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":615},{"sku":"FMDUTCS000782","type":"薄被套","name":"山徑微行","size":"單人","qty":4,"price":1790,"grade":"C","monthly":0.5,"months_stock":8.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":495},{"sku":"FMDUTCS000781","type":"薄被套","name":"海嶼漫迴","size":"單人","qty":4,"price":1790,"grade":"A","monthly":2.25,"months_stock":1.8,"reorder_point":10.6,"suggest_qty":9,"status":"urgent","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":495},{"sku":"FMDUTCD000696","type":"薄被套","name":"漫漫綠茵｜淺米杏","size":"雙人","qty":3,"price":1990,"grade":"D","monthly":1.5,"months_stock":2.0,"reorder_point":4.8,"suggest_qty":3,"status":"reorder","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":520},{"sku":"FMDUTCS000761","type":"薄被套","name":"春野漫遊｜野曦杏","size":"單人","qty":3,"price":1790,"grade":"B","monthly":1.5,"months_stock":2.0,"reorder_point":6.3,"suggest_qty":4,"status":"urgent","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":495},{"sku":"FMDUTCK000781","type":"薄被套","name":"海嶼漫迴","size":"特大","qty":1,"price":2490,"grade":"A","monthly":1.5,"months_stock":0.7,"reorder_point":7.1,"suggest_qty":6,"status":"urgent","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":615},{"sku":"FMDUTCS000638","type":"薄被套","name":"南法之旅","size":"單人","qty":2,"price":1790,"grade":"C","monthly":0.5,"months_stock":4.0,"reorder_point":1.9,"suggest_qty":1,"status":"watch","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","cost":495},{"sku":"FMDUTCK000833","type":"薄被套","name":"薰風薄霧","size":"特大","qty":5,"price":2490,"grade":"D","monthly":0.5,"months_stock":10.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":615},{"sku":"FMDUTCS000832","type":"薄被套","name":"暖陽坡地","size":"單人","qty":5,"price":1790,"grade":"B","monthly":0.5,"months_stock":10.0,"reorder_point":2.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":495},{"sku":"FMDUTCS000833","type":"薄被套","name":"薰風薄霧","size":"單人","qty":5,"price":1790,"grade":"D","monthly":0.5,"months_stock":10.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":495},{"sku":"FMPCTCS000637","type":"枕頭套1入","name":"午茶之旅","size":"—","qty":128,"price":399,"grade":"A","monthly":10.0,"months_stock":12.8,"reorder_point":47.3,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"午茶之旅","color_grade":"A","po_incoming":64,"cost":155},{"sku":"FMPCTCS000695","type":"枕頭套1入","name":"輕輕蔚藍｜淺雲米","size":"—","qty":49,"price":399,"grade":"B","monthly":7.0,"months_stock":7.0,"reorder_point":29.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":155},{"sku":"FMPCTCS000761","type":"枕頭套1入","name":"春野漫遊｜野曦杏","size":"—","qty":48,"price":399,"grade":"B","monthly":11.25,"months_stock":4.3,"reorder_point":47.6,"suggest_qty":17,"status":"watch","series":"航向好眠","no_restock":false,"color":"春野漫遊｜野曦杏","color_grade":"B","cost":155},{"sku":"FMPCTCS000638","type":"枕頭套1入","name":"南法之旅","size":"—","qty":80,"price":399,"grade":"C","monthly":7.93,"months_stock":10.1,"reorder_point":29.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"南法之旅","color_grade":"C","po_incoming":36,"cost":155},{"sku":"FMPCTCS000833","type":"枕頭套1入","name":"薰風薄霧","size":"—","qty":36,"price":399,"grade":"D","monthly":3.0,"months_stock":12.0,"reorder_point":9.7,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"薰風薄霧","color_grade":"D","cost":155},{"sku":"FMPCTCS000781","type":"枕頭套1入","name":"海嶼漫迴","size":"—","qty":33,"price":399,"grade":"A","monthly":6.9,"months_stock":4.8,"reorder_point":32.6,"suggest_qty":13,"status":"ok","series":"航向好眠","no_restock":false,"color":"海嶼漫迴","color_grade":"A","cost":155},{"sku":"FMPCTC0000022","type":"枕頭套1入","name":"星辰灰藍","size":"—","qty":27,"price":399,"grade":"A","monthly":10.75,"months_stock":2.5,"reorder_point":50.8,"suggest_qty":43,"status":"watch","series":"航向好眠","no_restock":false,"color":"星辰灰藍","color_grade":"A","cost":155},{"sku":"FMPCTCS000760","type":"枕頭套1入","name":"暮丘小徑","size":"—","qty":20,"price":399,"grade":"B","monthly":10.25,"months_stock":2.0,"reorder_point":43.3,"suggest_qty":31,"status":"watch","series":"航向好眠","no_restock":false,"color":"暮丘小徑","color_grade":"B","cost":155},{"sku":"FMPCTCS000782","type":"枕頭套1入","name":"山徑微行","size":"—","qty":20,"price":399,"grade":"C","monthly":6.0,"months_stock":3.3,"reorder_point":22.4,"suggest_qty":11,"status":"reorder","series":"航向好眠","no_restock":false,"color":"山徑微行","color_grade":"C","cost":155},{"sku":"FMPCTCS000832","type":"枕頭套1入","name":"暖陽坡地","size":"—","qty":13,"price":399,"grade":"B","monthly":4.5,"months_stock":2.9,"reorder_point":19.0,"suggest_qty":13,"status":"reorder","series":"航向好眠","no_restock":false,"color":"暖陽坡地","color_grade":"B","cost":155},{"sku":"FMPCTC0000016","type":"枕頭套1入","name":"月球白灰｜月球灰","size":"—","qty":3,"price":399,"grade":"C","monthly":10.2,"months_stock":0.3,"reorder_point":38.0,"suggest_qty":26,"status":"urgent","series":"航向好眠","no_restock":false,"color":"月球白灰｜月球灰","color_grade":"C","cost":155},{"sku":"FMPCTCS000696","type":"枕頭套1入","name":"漫漫綠茵｜淺米杏","size":"—","qty":9,"price":399,"grade":"D","monthly":4.5,"months_stock":2.0,"reorder_point":14.5,"suggest_qty":9,"status":"reorder","series":"航向好眠","no_restock":false,"color":"漫漫綠茵｜淺米杏","color_grade":"D","cost":155},{"sku":"FMEMTC0000695","type":"眼罩","name":"輕輕蔚藍｜淺雲米","size":"—","qty":41,"price":699,"grade":"B","monthly":3.6,"months_stock":11.4,"reorder_point":15.2,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"輕輕蔚藍｜淺雲米","color_grade":"B","cost":140},{"sku":"FMPWTC0000022-2","type":"抱枕","name":"星辰灰藍(宇宙藍)","size":"—","qty":22,"price":399,"grade":"A","monthly":0.5,"months_stock":44.0,"reorder_point":2.4,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"星辰灰藍(宇宙藍)","color_grade":"A","cost":155},{"sku":"FMPWTC0000016","type":"抱枕","name":"月球白灰(月球灰)","size":"—","qty":20,"price":399,"grade":"C","monthly":2.5,"months_stock":8.0,"reorder_point":9.3,"suggest_qty":0,"status":"watch","series":"航向好眠","no_restock":false,"color":"月球白灰(月球灰)","color_grade":"C","cost":155},{"sku":"FMPWTC0000022","type":"抱枕","name":"星辰灰藍(深沉灰)","size":"—","qty":20,"price":399,"grade":"A","monthly":1.5,"months_stock":13.3,"reorder_point":7.1,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"星辰灰藍(深沉灰)","color_grade":"A","cost":155},{"sku":"FMPWTC0000016-2","type":"抱枕","name":"月球白灰(月光白)","size":"—","qty":19,"price":399,"grade":"C","monthly":1.5,"months_stock":12.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"月球白灰(月光白)","color_grade":"C","cost":155},{"sku":"FMPWTC0000696","type":"抱枕","name":"漫漫綠茵","size":"—","qty":12,"price":399,"grade":"D","monthly":1.5,"months_stock":8.0,"reorder_point":4.8,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":false,"color":"漫漫綠茵","color_grade":"D","cost":155},{"sku":"FMPWTCS000637","type":"抱枕","name":"午茶之旅(奶茶色)","size":"—","qty":16,"price":399,"grade":"A","monthly":0.5,"months_stock":32.0,"reorder_point":2.4,"suggest_qty":0,"status":"reorder","series":"航向好眠","no_restock":false,"color":"午茶之旅(奶茶色)","color_grade":"A","po_incoming":7,"cost":155},{"sku":"FMPWTC0000021","type":"抱枕","name":"迷霧咖粉","size":"—","qty":6,"price":399,"grade":"D","monthly":0.5,"months_stock":12.0,"reorder_point":1.6,"suggest_qty":0,"status":"ok","series":"航向好眠","no_restock":true,"color":"迷霧咖粉","color_grade":"D","cost":155},{"sku":"FMPWTCS000637-1","type":"抱枕","name":"午茶之旅(奶油白)","size":"—","qty":13,"price":399,"grade":"A","monthly":3.0,"months_stock":4.3,"reorder_point":14.2,"suggest_qty":7,"status":"reorder","series":"航向好眠","no_restock":false,"color":"午茶之旅(奶油白)","color_grade":"A","po_incoming":7,"cost":155},{"sku":"FMATTCD000631","series":"純淨天絲","type":"兩用被套","color":"燕麥奶","size":"雙人","qty":41,"price":2390,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":18.2,"reorder_point":8.4,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜燕麥奶","no_restock":false,"color_grade":"A","cost":535},{"sku":"FMATTCD000632","series":"純淨天絲","type":"兩用被套","color":"雲海藍","size":"雙人","qty":7,"price":2390,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":4.7,"reorder_point":5.6,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜雲海藍","no_restock":true,"color_grade":"NR","cost":535},{"sku":"FMATTCD000633","series":"純淨天絲","type":"兩用被套","color":"岩石灰","size":"雙人","qty":0,"price":2390,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜岩石灰","no_restock":false,"color_grade":"B","cost":535},{"sku":"FMATTCD000634","series":"純淨天絲","type":"兩用被套","color":"初日粉","size":"雙人","qty":14,"price":2390,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":9.3,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜初日粉","no_restock":true,"color_grade":"NR","cost":535},{"sku":"FMATTCD000752","series":"純淨天絲","type":"兩用被套","color":"夜幕灰","size":"雙人","qty":9,"price":2390,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":4.0,"reorder_point":8.4,"suggest_qty":3,"status":"watch","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜夜幕灰","no_restock":false,"color_grade":"B","cost":535},{"sku":"FMATTCD000753","series":"純淨天絲","type":"兩用被套","color":"晨光白","size":"雙人","qty":17,"price":2390,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":34.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜晨光白","no_restock":false,"color_grade":"C","cost":535},{"sku":"FMATTCD000768","series":"純淨天絲","type":"兩用被套","color":"雲霓藍","size":"雙人","qty":8,"price":2390,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":5.3,"reorder_point":5.6,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜兩用被套｜雙人｜雲霓藍","no_restock":true,"color_grade":"NR","cost":535},{"sku":"FMATTCK000631","series":"純淨天絲","type":"兩用被套","color":"燕麥奶","size":"特大","qty":1,"price":2790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":2.0,"reorder_point":1.9,"suggest_qty":1,"status":"reorder","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜燕麥奶","no_restock":false,"color_grade":"A","cost":660},{"sku":"FMATTCK000632","series":"純淨天絲","type":"兩用被套","color":"雲海藍","size":"特大","qty":6,"price":2790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":4.0,"reorder_point":5.6,"suggest_qty":2,"status":"watch","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜雲海藍","no_restock":true,"color_grade":"NR","cost":660},{"sku":"FMATTCK000633","series":"純淨天絲","type":"兩用被套","color":"岩石灰","size":"特大","qty":3,"price":2790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":2.0,"reorder_point":5.6,"suggest_qty":4,"status":"reorder","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜岩石灰","no_restock":false,"color_grade":"B","cost":660},{"sku":"FMATTCK000634","series":"純淨天絲","type":"兩用被套","color":"初日粉","size":"特大","qty":9,"price":2790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":18.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜初日粉","no_restock":true,"color_grade":"NR","cost":660},{"sku":"FMATTCK000752","series":"純淨天絲","type":"兩用被套","color":"夜幕灰","size":"特大","qty":13,"price":2790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":8.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜夜幕灰","no_restock":false,"color_grade":"B","cost":660},{"sku":"FMATTCK000753","series":"純淨天絲","type":"兩用被套","color":"晨光白","size":"特大","qty":4,"price":2790,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":1.3,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜晨光白","no_restock":false,"color_grade":"C","cost":660},{"sku":"FMATTCK000768","series":"純淨天絲","type":"兩用被套","color":"雲霓藍","size":"特大","qty":6,"price":2790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":12.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜特大雙人｜雲霓藍","no_restock":true,"color_grade":"NR","cost":660},{"sku":"FMATTCS000631","series":"純淨天絲","type":"兩用被套","color":"燕麥奶","size":"單人","qty":4,"price":2190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":2.7,"reorder_point":5.6,"suggest_qty":4,"status":"reorder","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜燕麥奶","no_restock":false,"color_grade":"A","cost":460},{"sku":"FMATTCS000632","series":"純淨天絲","type":"兩用被套","color":"雲海藍","size":"單人","qty":4,"price":2190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":2.7,"reorder_point":5.6,"suggest_qty":4,"status":"reorder","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜雲海藍","no_restock":true,"color_grade":"NR","cost":460},{"sku":"FMATTCS000633","series":"純淨天絲","type":"兩用被套","color":"岩石灰","size":"單人","qty":13,"price":2190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":8.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜岩石灰","no_restock":false,"color_grade":"B","cost":460},{"sku":"FMATTCS000634","series":"純淨天絲","type":"兩用被套","color":"初日粉","size":"單人","qty":0,"price":2190,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜初日粉","no_restock":true,"color_grade":"NR","cost":460},{"sku":"FMATTCS000752","series":"純淨天絲","type":"兩用被套","color":"夜幕灰","size":"單人","qty":9,"price":2190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":6.0,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜夜幕灰","no_restock":false,"color_grade":"B","cost":460},{"sku":"FMATTCS000753","series":"純淨天絲","type":"兩用被套","color":"晨光白","size":"單人","qty":16,"price":2190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":10.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜晨光白","no_restock":false,"color_grade":"C","cost":460},{"sku":"FMATTCS000768","series":"純淨天絲","type":"兩用被套","color":"雲霓藍","size":"單人","qty":0,"price":2190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜兩用被套｜單人｜雲霓藍","no_restock":true,"color_grade":"NR","cost":460},{"sku":"FMBSTCD000631","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"雙人","qty":30,"price":1590,"grade":"C","grade_label":"穩定","monthly":3.86,"months_stock":7.8,"reorder_point":14.4,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜燕麥奶｜35cm","no_restock":false,"color_grade":"A","cost":450},{"sku":"FMBSTCD000631-1","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜燕麥奶｜28cm","no_restock":true,"color_grade":"28CM","cost":450},{"sku":"FMBSTCD000632","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":0.0,"reorder_point":8.4,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜雲海藍｜35cm","no_restock":true,"color_grade":"NR","cost":450},{"sku":"FMBSTCD000632-1","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜雲海藍｜28cm","no_restock":true,"color_grade":"28CM","cost":450},{"sku":"FMBSTCD000633","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":1.75,"months_stock":0.0,"reorder_point":6.5,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜岩石灰｜35cm","no_restock":false,"color_grade":"B","cost":450},{"sku":"FMBSTCD000633-1","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"雙人","qty":1,"price":1590,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":2.0,"reorder_point":1.9,"suggest_qty":1,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜岩石灰｜28cm","no_restock":true,"color_grade":"28CM","cost":450},{"sku":"FMBSTCD000634","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜初日粉｜35cm","no_restock":true,"color_grade":"NR","cost":450},{"sku":"FMBSTCD000634-1","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜初日粉｜28cm","no_restock":true,"color_grade":"28CM","cost":450},{"sku":"FMBSTCD000752","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"雙人","qty":14,"price":1590,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":4.7,"reorder_point":11.2,"suggest_qty":4,"status":"watch","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜夜幕灰｜35cm","no_restock":false,"color_grade":"B","cost":450},{"sku":"FMBSTCD000752-1","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜夜幕灰｜28cm","no_restock":true,"color_grade":"28CM","cost":450},{"sku":"FMBSTCD000753","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"雙人","qty":10,"price":1590,"grade":"C","grade_label":"穩定","monthly":2.4,"months_stock":4.2,"reorder_point":8.9,"suggest_qty":4,"status":"watch","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜晨光白｜35cm","no_restock":false,"color_grade":"C","cost":450},{"sku":"FMBSTCD000753-1","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"雙人","qty":0,"price":1590,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜晨光白｜28cm","no_restock":true,"color_grade":"28CM","cost":450},{"sku":"FMBSTCD000768","series":"純淨天絲","type":"枕頭套床包組","color":"雲霓藍","size":"雙人","qty":7,"price":1590,"grade":"C","grade_label":"穩定","monthly":2.0,"months_stock":3.5,"reorder_point":7.5,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜雙人｜雲霓藍｜35cm","no_restock":true,"color_grade":"NR","cost":450},{"sku":"FMBSTCK000631","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"特大","qty":0,"price":1990,"grade":"C","grade_label":"穩定","monthly":2.7,"months_stock":0.0,"reorder_point":10.1,"suggest_qty":7,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜燕麥奶｜35cm","no_restock":false,"color_grade":"A","cost":550},{"sku":"FMBSTCK000631-1","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"特大","qty":1,"price":1990,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.7,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜燕麥奶｜28cm","no_restock":true,"color_grade":"28CM","cost":550},{"sku":"FMBSTCK000632-1","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"特大","qty":3,"price":1990,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":6.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜雲海藍｜28cm","no_restock":true,"color_grade":"28CM","cost":550},{"sku":"FMBSTCK000633","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"特大","qty":10,"price":1990,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":6.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜岩石灰｜35cm","no_restock":false,"color_grade":"B","cost":550},{"sku":"FMBSTCK000633-1","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"特大","qty":0,"price":1990,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":0.0,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜岩石灰｜28cm","no_restock":true,"color_grade":"28CM","cost":550},{"sku":"FMBSTCK000634","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"特大","qty":9,"price":1990,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":18.0,"reorder_point":1.9,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜初日粉｜35cm","no_restock":true,"color_grade":"NR","cost":550},{"sku":"FMBSTCK000634-1","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"特大","qty":5,"price":1990,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":10.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜初日粉｜28cm","no_restock":true,"color_grade":"28CM","cost":550},{"sku":"FMBSTCK000752","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"特大","qty":6,"price":1990,"grade":"C","grade_label":"穩定","monthly":1.8,"months_stock":3.3,"reorder_point":6.7,"suggest_qty":3,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜夜幕灰｜35cm","no_restock":false,"color_grade":"B","cost":550},{"sku":"FMBSTCK000752-1","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"特大","qty":0,"price":1990,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜夜幕灰｜28cm","no_restock":true,"color_grade":"28CM","cost":550},{"sku":"FMBSTCK000753","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"特大","qty":9,"price":1990,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":6.0,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜晨光白｜35cm","no_restock":false,"color_grade":"C","cost":550},{"sku":"FMBSTCK000753-1","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"特大","qty":1,"price":1990,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":0.3,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜晨光白｜28cm","no_restock":true,"color_grade":"28CM","cost":550},{"sku":"FMBSTCK000768","series":"純淨天絲","type":"枕頭套床包組","color":"雲霓藍","size":"特大","qty":0,"price":1990,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜特大｜雲霓藍｜35cm","no_restock":true,"color_grade":"NR","cost":550},{"sku":"FMBSTCQ000631","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"加大","qty":10,"price":1790,"grade":"C","grade_label":"穩定","monthly":2.75,"months_stock":3.6,"reorder_point":10.2,"suggest_qty":4,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜燕麥奶｜35cm","no_restock":false,"color_grade":"A","cost":500},{"sku":"FMBSTCQ000631-1","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"加大","qty":7,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":14.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜燕麥奶｜28cm","no_restock":true,"color_grade":"28CM","cost":500},{"sku":"FMBSTCQ000632","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"加大","qty":0,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜雲海藍｜35cm","no_restock":true,"color_grade":"NR","cost":500},{"sku":"FMBSTCQ000632-1","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"加大","qty":1,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.7,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜雲海藍｜28cm","no_restock":true,"color_grade":"28CM","cost":500},{"sku":"FMBSTCQ000633","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"加大","qty":10,"price":1790,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":3.3,"reorder_point":11.2,"suggest_qty":7,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜岩石灰｜35cm","no_restock":false,"color_grade":"B","cost":500},{"sku":"FMBSTCQ000633-1","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"加大","qty":2,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":1.3,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜岩石灰｜28cm","no_restock":true,"color_grade":"28CM","cost":500},{"sku":"FMBSTCQ000634","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"加大","qty":11,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":7.3,"reorder_point":5.6,"suggest_qty":0,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜初日粉｜35cm","no_restock":true,"color_grade":"NR","cost":500},{"sku":"FMBSTCQ000634-1","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"加大","qty":1,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.7,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜初日粉｜28cm","no_restock":true,"color_grade":"28CM","cost":500},{"sku":"FMBSTCQ000752","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"加大","qty":7,"price":1790,"grade":"C","grade_label":"穩定","monthly":2.1,"months_stock":3.3,"reorder_point":7.8,"suggest_qty":4,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜夜幕灰｜35cm","no_restock":false,"color_grade":"B","cost":500},{"sku":"FMBSTCQ000752-1","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"加大","qty":22,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":44.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜夜幕灰｜28cm","no_restock":true,"color_grade":"28CM","cost":500},{"sku":"FMBSTCQ000753","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"加大","qty":11,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.88,"months_stock":5.9,"reorder_point":7.0,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜晨光白｜35cm","no_restock":false,"color_grade":"C","cost":500},{"sku":"FMBSTCQ000753-1","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"加大","qty":5,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":10.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜晨光白｜28cm","no_restock":true,"color_grade":"28CM","cost":500},{"sku":"FMBSTCQ000768","series":"純淨天絲","type":"枕頭套床包組","color":"雲霓藍","size":"加大","qty":20,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":40.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜加大｜雲霓藍｜35cm","no_restock":true,"color_grade":"NR","cost":500},{"sku":"FMBSTCS000631","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"單人","qty":22,"price":1290,"grade":"C","grade_label":"穩定","monthly":2.0,"months_stock":11.0,"reorder_point":7.5,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜燕麥奶｜35cm","no_restock":false,"color_grade":"A","cost":340},{"sku":"FMBSTCS000631-1","series":"純淨天絲","type":"枕頭套床包組","color":"燕麥奶","size":"單人","qty":1,"price":1290,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":2.0,"reorder_point":1.9,"suggest_qty":1,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜燕麥奶｜28cm","no_restock":true,"color_grade":"28CM","cost":340},{"sku":"FMBSTCS000632","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"單人","qty":0,"price":1290,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":0.0,"reorder_point":8.4,"suggest_qty":6,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜雲海藍｜35cm","no_restock":true,"color_grade":"NR","cost":340},{"sku":"FMBSTCS000632-1","series":"純淨天絲","type":"枕頭套床包組","color":"雲海藍","size":"單人","qty":0,"price":1290,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜雲海藍｜28cm","no_restock":true,"color_grade":"28CM","cost":340},{"sku":"FMBSTCS000633","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"單人","qty":10,"price":1290,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":6.7,"reorder_point":5.6,"suggest_qty":0,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜岩石灰｜35cm","no_restock":false,"color_grade":"B","cost":340},{"sku":"FMBSTCS000633-1","series":"純淨天絲","type":"枕頭套床包組","color":"岩石灰","size":"單人","qty":0,"price":1290,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜岩石灰｜28cm","no_restock":true,"color_grade":"28CM","cost":340},{"sku":"FMBSTCS000634","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"單人","qty":1,"price":1290,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.7,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜初日粉｜35cm","no_restock":true,"color_grade":"NR","cost":340},{"sku":"FMBSTCS000634-1","series":"純淨天絲","type":"枕頭套床包組","color":"初日粉","size":"單人","qty":1,"price":1290,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":2.0,"reorder_point":1.9,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜初日粉｜28cm","no_restock":true,"color_grade":"28CM","cost":340},{"sku":"FMBSTCS000752","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"單人","qty":7,"price":1290,"grade":"C","grade_label":"穩定","monthly":4.5,"months_stock":1.6,"reorder_point":16.8,"suggest_qty":11,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜夜幕灰｜35cm","no_restock":false,"color_grade":"B","cost":340},{"sku":"FMBSTCS000752-1","series":"純淨天絲","type":"枕頭套床包組","color":"夜幕灰","size":"單人","qty":0,"price":1290,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜夜幕灰｜28cm","no_restock":true,"color_grade":"28CM","cost":340},{"sku":"FMBSTCS000753","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"單人","qty":9,"price":1290,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":6.0,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜晨光白｜35cm","no_restock":false,"color_grade":"C","cost":340},{"sku":"FMBSTCS000753-1","series":"純淨天絲","type":"枕頭套床包組","color":"晨光白","size":"單人","qty":5,"price":1290,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":1.7,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜晨光白｜28cm","no_restock":true,"color_grade":"28CM","cost":340},{"sku":"FMBSTCS000768","series":"純淨天絲","type":"枕頭套床包組","color":"雲霓藍","size":"單人","qty":0,"price":1290,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":0.0,"reorder_point":8.4,"suggest_qty":6,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套床包組｜單人｜雲霓藍｜35cm","no_restock":true,"color_grade":"NR","cost":340},{"sku":"FMDPCTC0000631","series":"純淨天絲","type":"枕頭套1入","color":"燕麥奶","size":"—","qty":13,"price":299,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":4.3,"reorder_point":11.2,"suggest_qty":7,"status":"reorder","name":"純淨天絲｜40支天絲™｜枕頭套｜單入｜燕麥奶","no_restock":false,"color_grade":"A","cost":140},{"sku":"FMDPCTC0000632","series":"純淨天絲","type":"枕頭套1入","color":"雲海藍","size":"—","qty":0,"price":299,"grade":"C","grade_label":"穩定","monthly":6.0,"months_stock":0.0,"reorder_point":22.4,"suggest_qty":15,"status":"urgent","name":"純淨天絲｜40支天絲™｜枕頭套｜單入｜雲海藍","no_restock":true,"color_grade":"NR","cost":140},{"sku":"FMDPCTC0000633","series":"純淨天絲","type":"枕頭套1入","color":"岩石灰","size":"—","qty":16,"price":299,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":5.3,"reorder_point":11.2,"suggest_qty":0,"status":"watch","name":"純淨天絲｜40支天絲™｜枕頭套｜單入｜岩石灰","no_restock":false,"color_grade":"B","cost":140},{"sku":"FMDPCTC0000634","series":"純淨天絲","type":"枕頭套1入","color":"初日粉","size":"—","qty":27,"price":299,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":12.0,"reorder_point":8.4,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套｜單入｜初日粉","no_restock":true,"color_grade":"NR","cost":140},{"sku":"FMDPCTC0000752","series":"純淨天絲","type":"枕頭套1入","color":"夜幕灰","size":"—","qty":14,"price":299,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":4.7,"reorder_point":11.2,"suggest_qty":4,"status":"watch","name":"純淨天絲｜40支天絲™｜枕頭套｜單入｜夜幕灰","no_restock":false,"color_grade":"B","cost":140},{"sku":"FMDPCTC0000753","series":"純淨天絲","type":"枕頭套1入","color":"晨光白","size":"—","qty":15,"price":299,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":10.0,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜枕頭套｜單入｜晨光白","no_restock":false,"color_grade":"C","cost":140},{"sku":"FMDUTCD000631","series":"純淨天絲","type":"薄被套","color":"燕麥奶","size":"雙人","qty":31,"price":1390,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":20.7,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜燕麥奶","no_restock":false,"color_grade":"A","cost":420},{"sku":"FMDUTCD000632","series":"純淨天絲","type":"薄被套","color":"雲海藍","size":"雙人","qty":0,"price":1390,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜雲海藍","no_restock":true,"color_grade":"NR","cost":420},{"sku":"FMDUTCD000633","series":"純淨天絲","type":"薄被套","color":"岩石灰","size":"雙人","qty":9,"price":1390,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":6.0,"reorder_point":5.6,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜岩石灰","no_restock":false,"color_grade":"B","cost":420},{"sku":"FMDUTCD000634","series":"純淨天絲","type":"薄被套","color":"初日粉","size":"雙人","qty":1,"price":1390,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":0.3,"reorder_point":11.2,"suggest_qty":0,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜初日粉","no_restock":true,"color_grade":"NR","cost":420},{"sku":"FMDUTCD000752","series":"純淨天絲","type":"薄被套","color":"夜幕灰","size":"雙人","qty":15,"price":1390,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":30.0,"reorder_point":1.9,"suggest_qty":0,"status":"reorder","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜夜幕灰","no_restock":false,"color_grade":"B","po_incoming":7,"cost":420},{"sku":"FMDUTCD000753","series":"純淨天絲","type":"薄被套","color":"晨光白","size":"雙人","qty":21,"price":1390,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":7.0,"reorder_point":11.2,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜晨光白","no_restock":false,"color_grade":"C","cost":420},{"sku":"FMDUTCD000768","series":"純淨天絲","type":"薄被套","color":"雲霓藍","size":"雙人","qty":11,"price":1390,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":7.3,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜雙人｜雲霓藍","no_restock":true,"color_grade":"NR","cost":420},{"sku":"FMDUTCK000631","series":"純淨天絲","type":"薄被套","color":"燕麥奶","size":"特大","qty":11,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":22.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜燕麥奶","no_restock":false,"color_grade":"A","cost":500},{"sku":"FMDUTCK000632","series":"純淨天絲","type":"薄被套","color":"雲海藍","size":"特大","qty":5,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":10.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜雲海藍","no_restock":true,"color_grade":"NR","cost":500},{"sku":"FMDUTCK000633","series":"純淨天絲","type":"薄被套","color":"岩石灰","size":"特大","qty":11,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":7.3,"reorder_point":5.6,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜岩石灰","no_restock":false,"color_grade":"B","cost":500},{"sku":"FMDUTCK000634","series":"純淨天絲","type":"薄被套","color":"初日粉","size":"特大","qty":12,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":24.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜初日粉","no_restock":true,"color_grade":"NR","cost":500},{"sku":"FMDUTCK000752","series":"純淨天絲","type":"薄被套","color":"夜幕灰","size":"特大","qty":3,"price":1790,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":2.0,"reorder_point":5.6,"suggest_qty":4,"status":"reorder","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜夜幕灰","no_restock":false,"color_grade":"B","cost":500},{"sku":"FMDUTCK000753","series":"純淨天絲","type":"薄被套","color":"晨光白","size":"特大","qty":1,"price":1790,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":0.3,"reorder_point":11.2,"suggest_qty":8,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜晨光白","no_restock":false,"color_grade":"C","cost":500},{"sku":"FMDUTCK000768","series":"純淨天絲","type":"薄被套","color":"雲霓藍","size":"特大","qty":5,"price":1790,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":10.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜特大雙人｜雲霓藍","no_restock":true,"color_grade":"NR","cost":500},{"sku":"FMDUTCS000631","series":"純淨天絲","type":"薄被套","color":"燕麥奶","size":"單人","qty":7,"price":1190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":4.7,"reorder_point":5.6,"suggest_qty":2,"status":"watch","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜燕麥奶","no_restock":false,"color_grade":"A","cost":385},{"sku":"FMDUTCS000632","series":"純淨天絲","type":"薄被套","color":"雲海藍","size":"單人","qty":0,"price":1190,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜雲海藍","no_restock":true,"color_grade":"NR","cost":385},{"sku":"FMDUTCS000633","series":"純淨天絲","type":"薄被套","color":"岩石灰","size":"單人","qty":14,"price":1190,"grade":"C","grade_label":"穩定","monthly":3.0,"months_stock":4.7,"reorder_point":11.2,"suggest_qty":4,"status":"watch","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜岩石灰","no_restock":false,"color_grade":"B","cost":385},{"sku":"FMDUTCS000634","series":"純淨天絲","type":"薄被套","color":"初日粉","size":"單人","qty":0,"price":1190,"grade":"C","grade_label":"穩定","monthly":1.5,"months_stock":0.0,"reorder_point":5.6,"suggest_qty":4,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜初日粉","no_restock":true,"color_grade":"NR","cost":385},{"sku":"FMDUTCS000752","series":"純淨天絲","type":"薄被套","color":"夜幕灰","size":"單人","qty":12,"price":1190,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":24.0,"reorder_point":1.9,"suggest_qty":0,"status":"ok","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜夜幕灰","no_restock":false,"color_grade":"B","cost":385},{"sku":"FMDUTCS000753","series":"純淨天絲","type":"薄被套","color":"晨光白","size":"單人","qty":2,"price":1190,"grade":"C","grade_label":"穩定","monthly":2.25,"months_stock":0.9,"reorder_point":8.4,"suggest_qty":6,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜晨光白","no_restock":false,"color_grade":"C","cost":385},{"sku":"FMDUTCS000768","series":"純淨天絲","type":"薄被套","color":"雲霓藍","size":"單人","qty":0,"price":1190,"grade":"C","grade_label":"穩定","monthly":0.5,"months_stock":0.0,"reorder_point":1.9,"suggest_qty":1,"status":"urgent","name":"純淨天絲｜40支天絲™｜薄被套｜單人｜雲霓藍","no_restock":true,"color_grade":"NR","cost":385},{"sku":"FMBSTCD000790","series":"時光旅棉","type":"枕頭套床包組","color":"暮光呢喃","size":"雙人","qty":5,"price":1690,"grade":"D","grade_label":"觀察中","monthly":5.5,"months_stock":0.9,"reorder_point":17.8,"suggest_qty":22,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套床包組｜雙人｜暮光呢喃","no_restock":false,"color_grade":"A","cost":520},{"sku":"FMBSTCD000791","series":"時光旅棉","type":"枕頭套床包組","color":"藍韻沉語","size":"雙人","qty":10,"price":1690,"grade":"D","grade_label":"觀察中","monthly":5.62,"months_stock":1.8,"reorder_point":18.2,"suggest_qty":17,"status":"reorder","name":"時光旅棉｜雙層紗｜枕頭套床包組｜雙人｜藍韻沉語","no_restock":false,"color_grade":"B","cost":520},{"sku":"FMBSTCK000790","series":"時光旅棉","type":"枕頭套床包組","color":"暮光呢喃","size":"特大","qty":13,"price":2390,"grade":"D","grade_label":"觀察中","monthly":3.0,"months_stock":4.3,"reorder_point":9.7,"suggest_qty":7,"status":"reorder","name":"時光旅棉／枕頭套床包組／特大／暮光呢喃","no_restock":false,"color_grade":"A","cost":600},{"sku":"FMBSTCK000791","series":"時光旅棉","type":"枕頭套床包組","color":"藍韻沉語","size":"特大","qty":12,"price":2390,"grade":"D","grade_label":"觀察中","monthly":2.0,"months_stock":6.0,"reorder_point":6.5,"suggest_qty":0,"status":"ok","name":"時光旅棉／枕頭套床包組／特大／藍韻沉語","no_restock":false,"color_grade":"B","cost":600},{"sku":"FMBSTCQ000790","series":"時光旅棉","type":"枕頭套床包組","color":"暮光呢喃","size":"加大","qty":4,"price":2090,"grade":"D","grade_label":"觀察中","monthly":3.0,"months_stock":1.3,"reorder_point":9.7,"suggest_qty":12,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套床包組｜加大｜暮光呢喃","no_restock":false,"color_grade":"A","cost":560},{"sku":"FMBSTCQ000791","series":"時光旅棉","type":"枕頭套床包組","color":"藍韻沉語","size":"加大","qty":10,"price":2090,"grade":"D","grade_label":"觀察中","monthly":4.5,"months_stock":2.2,"reorder_point":14.5,"suggest_qty":14,"status":"reorder","name":"時光旅棉｜雙層紗｜枕頭套床包組｜加大｜藍韻沉語","no_restock":false,"color_grade":"B","cost":560},{"sku":"FMBSTCS000790","series":"時光旅棉","type":"枕頭套床包組","color":"暮光呢喃","size":"單人","qty":5,"price":1590,"grade":"D","grade_label":"觀察中","monthly":7.5,"months_stock":0.7,"reorder_point":24.2,"suggest_qty":30,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套床包組｜單人｜暮光呢喃","no_restock":false,"color_grade":"A","cost":400},{"sku":"FMBSTCS000791","series":"時光旅棉","type":"枕頭套床包組","color":"藍韻沉語","size":"單人","qty":8,"price":1590,"grade":"D","grade_label":"觀察中","monthly":4.5,"months_stock":1.8,"reorder_point":14.5,"suggest_qty":9,"status":"reorder","name":"時光旅棉｜雙層紗｜枕頭套床包組｜單人｜藍韻沉語","no_restock":false,"color_grade":"B","cost":400},{"sku":"FMDUTCD000790","series":"時光旅棉","type":"薄被套","color":"暮光呢喃","size":"雙人","qty":25,"price":2390,"grade":"D","grade_label":"觀察中","monthly":5.0,"months_stock":5.0,"reorder_point":16.1,"suggest_qty":9,"status":"watch","name":"時光旅棉｜雙層紗｜薄被套｜雙人｜暮光呢喃","no_restock":false,"color_grade":"A","cost":490},{"sku":"FMDUTCD000791","series":"時光旅棉","type":"薄被套","color":"藍韻沉語","size":"雙人","qty":48,"price":2390,"grade":"D","grade_label":"觀察中","monthly":3.0,"months_stock":16.0,"reorder_point":9.7,"suggest_qty":0,"status":"ok","name":"時光旅棉｜雙層紗｜薄被套｜雙人｜藍韻沉語","no_restock":false,"color_grade":"B","cost":490},{"sku":"FMDUTCK000790","series":"時光旅棉","type":"薄被套","color":"暮光呢喃","size":"特大","qty":7,"price":2790,"grade":"D","grade_label":"觀察中","monthly":2.25,"months_stock":3.1,"reorder_point":7.3,"suggest_qty":8,"status":"urgent","name":"時光旅棉｜雙層紗｜薄被套｜特大｜暮光呢喃","no_restock":false,"color_grade":"A","cost":580},{"sku":"FMDUTCK000791","series":"時光旅棉","type":"薄被套","color":"藍韻沉語","size":"特大","qty":15,"price":2790,"grade":"D","grade_label":"觀察中","monthly":1.5,"months_stock":10.0,"reorder_point":4.8,"suggest_qty":0,"status":"ok","name":"時光旅棉｜雙層紗｜薄被套｜特大｜藍韻沉語","no_restock":false,"color_grade":"B","cost":580},{"sku":"FMDUTCS000790","series":"時光旅棉","type":"薄被套","color":"暮光呢喃","size":"單人","qty":4,"price":2190,"grade":"D","grade_label":"觀察中","monthly":1.5,"months_stock":2.7,"reorder_point":4.8,"suggest_qty":3,"status":"reorder","name":"時光旅棉｜雙層紗｜薄被套｜單人｜暮光呢喃","no_restock":false,"color_grade":"A","cost":460},{"sku":"FMDUTCS000791","series":"時光旅棉","type":"薄被套","color":"藍韻沉語","size":"單人","qty":4,"price":2190,"grade":"D","grade_label":"觀察中","monthly":0.5,"months_stock":8.0,"reorder_point":1.6,"suggest_qty":0,"status":"urgent","name":"時光旅棉｜雙層紗｜薄被套｜單人｜藍韻沉語","no_restock":false,"color_grade":"B","cost":460},{"sku":"FMPCTC0000790","series":"時光旅棉","type":"枕頭套1入","color":"暮光呢喃","size":"—","qty":6,"price":399,"grade":"D","grade_label":"觀察中","monthly":5.25,"months_stock":1.1,"reorder_point":16.9,"suggest_qty":21,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套1入｜暮光呢喃｜暖紗褐","no_restock":false,"color_grade":"A","cost":155},{"sku":"FMPCTC0000791","series":"時光旅棉","type":"枕頭套1入","color":"藍韻沉語","size":"—","qty":8,"price":399,"grade":"D","grade_label":"觀察中","monthly":1.88,"months_stock":4.3,"reorder_point":6.1,"suggest_qty":3,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套1入｜藍韻沉語｜微光白","no_restock":false,"color_grade":"B","cost":155},{"sku":"FMPCTC0000792","series":"時光旅棉","type":"枕頭套1入","color":"暮光呢喃","size":"—","qty":3,"price":399,"grade":"D","grade_label":"觀察中","monthly":4.5,"months_stock":0.7,"reorder_point":14.5,"suggest_qty":9,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套1入｜暮光呢喃｜暮語棕","no_restock":false,"color_grade":"A","cost":155},{"sku":"FMPCTC0000793","series":"時光旅棉","type":"枕頭套1入","color":"藍韻沉語","size":"—","qty":6,"price":399,"grade":"D","grade_label":"觀察中","monthly":7.5,"months_stock":0.8,"reorder_point":24.2,"suggest_qty":22,"status":"urgent","name":"時光旅棉｜雙層紗｜枕頭套1入｜藍韻沉語｜光年藍","no_restock":false,"color_grade":"B","cost":155}];
+
+// Grade config per series
+const GRADE_CONFIG = {
+  '航向好眠': {
+    grades: ['A','B','C','D'],
+    labels: {
+      A: 'A 級 最熱銷',
+      B: 'B 級  穩定銷售',
+      C: 'C 級  不穩定',
+      D: 'D 級  相對冷門',
+    },
+    sublabels: {
+      A: '海嶼漫迴・午茶之旅・星辰灰藍',
+      B: '暮丘小徑・春野漫遊・輕輕蔚藍・暖陽坡地',
+      C: '南法之旅・山徑微行・月球白灰',
+      D: '漫漫綠茵・薰風薄霧',
+    }
+  },
+  '純淨天絲': {
+    grades: ['A','B','C','NR','28CM'],
+    labels: {
+      A: 'A 級 最熱銷',
+      B: 'B 級  穩定銷售',
+      C: 'C 級  不穩定',
+      NR: '不補貨',
+      '28CM': '28cm 規格 全部不補貨',
+    },
+    sublabels: {
+      A: '燕麥奶',
+      B: '夜幕灰・岩石灰',
+      C: '晨光白',
+      NR: '初日粉・雲海藍・雲霓藍',
+      '28CM': '所有色系 28cm 枕頭套床包組，已停止補貨',
+    }
+  },
+  '時光旅棉': {
+    grades: ['A','B'],
+    labels: { A: 'A 級 最熱銷', B: 'B 級  穩定銷售' },
+    sublabels: { A: '暮光呢喃', B: '藍韻沉語' }
+  }
+};
+
+const SERIES_C = {'航向好眠':'#a32d2d','純淨天絲':'#0f6e56','時光旅棉':'#6e0f5e'};
+const STATUS_ORDER = {urgent:1,reorder:2,watch:3,ok:4};
+const STATUS_LABEL = {urgent:'🔴 緊急',reorder:'🟡 應補',watch:'🔵 留意',ok:'🟢 充裕'};
+const STATUS_CLS   = {urgent:'sb-urgent',reorder:'sb-reorder',watch:'sb-watch',ok:'sb-ok'};
+const SIZE_ORDER   = {'單人':1,'雙人':2,'加大':3,'特大':4,'—':5};
+const MAX_QTY = Math.max(...DATA.map(d=>d.qty));
+const GH_CLS = {A:'gh-A',B:'gh-B',C:'gh-C',D:'gh-D',NR:'gh-NR','28CM':'gh-28cm'};
+const GB_CLS = {A:'gb-A',B:'gb-B',C:'gb-C',D:'gb-D',NR:'gb-NR','28CM':'gb-28cm'};
+
+let activeTab='all', statusF='all', gradeF='all', flatSeriesF='all', flatGradeF='all', sortK='status', sortD=1;
+
+function switchTab(t,btn){
+  activeTab=t;
+  gradeF='all';
+  if(t==='all'){flatSeriesF='all';flatGradeF='all';}
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const p=document.getElementById('main-panel');
+  p.className='panel '+(t==='all'?'p-all':t==='航向好眠'?'p-hx':t==='純淨天絲'?'p-jj':t==='時光旅棉'?'p-lm':'p-po');
+  // Reset grade filter buttons
+  document.querySelectorAll('.gfbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.gfbtn.gf-all').classList.add('active');
+  // Show D/NR/28CM buttons based on series
+  const dBtn=document.getElementById('grade-btn-D');
+  const nrBtn=document.getElementById('grade-btn-NR');
+  const cmBtn=document.getElementById('grade-btn-28CM');
+  if(dBtn) dBtn.style.display=(t==='航向好眠')?'':'none';
+  if(nrBtn) nrBtn.style.display=(t==='純淨天絲')?'':'none';
+  if(cmBtn) cmBtn.style.display=(t==='純淨天絲')?'':'none';
+  render();
+}
+
+function setStatus(s,btn){
+  statusF=s;
+  // find parent filter-bar and reset only its buttons
+  const bar=btn.closest('.filter-bar');
+  if(bar) bar.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setGrade(g,btn){
+  gradeF=g;
+  document.querySelectorAll('.gfbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setFlatSeries(s,btn){
+  flatSeriesF=s;
+  document.querySelectorAll('.flat-series').forEach(b=>{
+    b.classList.remove('active');
+    // restore original color style
+    if(b.dataset.series==='航向好眠') b.style.cssText='border-color:#a32d2d;color:#a32d2d';
+    else if(b.dataset.series==='純淨天絲') b.style.cssText='border-color:#0f6e56;color:#0f6e56';
+    else if(b.dataset.series==='時光旅棉') b.style.cssText='border-color:#6e0f5e;color:#6e0f5e';
+    else b.style.cssText='';
+  });
+  btn.classList.add('active');
+  if(s==='航向好眠') btn.style.cssText='background:#a32d2d;color:#fff;border-color:#a32d2d';
+  else if(s==='純淨天絲') btn.style.cssText='background:#0f6e56;color:#fff;border-color:#0f6e56';
+  else if(s==='時光旅棉') btn.style.cssText='background:#6e0f5e;color:#fff;border-color:#6e0f5e';
+  render();
+}
+
+function setFlatGrade(g,btn){
+  flatGradeF=g;
+  document.querySelectorAll('.flat-grade').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function sort(k){
+  if(sortK===k) sortD*=-1; else{sortK=k;sortD=1;}
+  document.querySelectorAll('thead th').forEach(th=>th.classList.remove('sort-asc','sort-desc'));
+  const th=document.getElementById('th-'+k);
+  if(th) th.classList.add(sortD>0?'sort-asc':'sort-desc');
+  render();
+}
+
+function cmp(a,b,k){
+  if(k==='status') return STATUS_ORDER[a.status]-STATUS_ORDER[b.status];
+  if(k==='size')   return (SIZE_ORDER[a.size]||9)-(SIZE_ORDER[b.size]||9);
+  if(k==='value')  return (a.qty*a.price)-(b.qty*b.price);
+  if(k==='cost')   return (a.cost||0)-(b.cost||0);
+  if(k==='color_grade'){
+    const o={A:1,B:2,C:3,D:4,NR:5};
+    return (o[a.color_grade]||9)-(o[b.color_grade]||9);
+  }
+  if(typeof a[k]==='number') return a[k]-b[k];
+  return String(a[k]).localeCompare(String(b[k]),'zh-Hant');
+}
+
+function makeRow(r){
+  const bw=Math.max(Math.round(r.qty/Math.max(MAX_QTY,1)*50),2);
+  const barC=SERIES_C[r.series]||'#888';
+  const msC=r.months_stock<2?'#a32d2d':r.months_stock<4?'#854f0b':r.months_stock<8?'#185fa5':'#2d6b2d';
+  const sug=r.no_restock?'<span class="sug sug-nr">🚫 不補貨</span>':
+             r.suggest_qty>0?`<span class="sug sug-has">補 ${r.suggest_qty} 件</span>`:
+             '<span class="sug sug-none">—</span>';
+  const displayColor=(r.series==='航向好眠'?r.color:r.color)||'';
+  const tr=document.createElement('tr');
+  if(r.no_restock) tr.className='row-nr';
+  tr.dataset.sku=r.sku;
+  tr.innerHTML=`
+    <td class="cb-cell"><input type="checkbox" class="row-cb" data-sku="${r.sku}" onchange="onCbChange()"></td>
+    <td><span class="status-badge ${STATUS_CLS[r.status]}">${STATUS_LABEL[r.status]}</span></td>
+    <td><span class="dot" style="background:${barC}"></span>${r.series}</td>
+    <td><span class="grade-b gb2-${r.color_grade}">${r.color_grade==='NR'?'—':r.color_grade==='28CM'?'28cm':r.color_grade}</span></td>
+    <td><span class="type-b">${r.type}</span></td>
+    <td>${displayColor}</td>
+    <td><span class="size-b">${r.size}</span></td>
+    <td><div class="qty-cell"><span class="qty-n" style="color:${barC}">${r.qty}</span>${r.po_incoming?'<span class="po-badge">+'+r.po_incoming+' 到</span>':''}<div class="qty-bar" style="width:${bw}px;background:${barC}"></div></div></td>
+    <td style="color:${msC};font-weight:600">${r.months_stock.toFixed(1)} 月</td>
+    <td style="text-align:right;color:#888">${r.monthly.toFixed(1)}</td>
+    <td>${sug}</td>
+    <td style="text-align:right">$${r.price.toLocaleString()}</td>
+    <td style="text-align:right;color:#854f0b">$${r.cost?r.cost.toLocaleString():'—'}</td>
+    <td style="text-align:right;font-weight:600">$${(r.qty*r.price).toLocaleString()}</td>
+    <td><span class="sku-c">${r.sku}</span></td>`;
+  return tr;
+}
+
+function buildGradeSections(seriesData, seriesName){
+  const cfg=GRADE_CONFIG[seriesName];
+  if(!cfg) return '';
+  const container=document.createElement('div');
+  const q=(document.getElementById('searchBox').value||'').toLowerCase();
+
+  cfg.grades.forEach(g=>{
+    if(gradeF!=='all' && gradeF!==g) return;
+    let items=seriesData.filter(d=>d.color_grade===g);
+    if(statusF!=='all') items=items.filter(d=>d.status===statusF);
+    if(q) items=items.filter(d=>d.sku.toLowerCase().includes(q)||d.color.toLowerCase().includes(q)||(d.name||'').toLowerCase().includes(q));
+    items.sort((a,b)=>cmp(a,b,sortK)*sortD);
+    if(items.length===0) return;
+
+    const sc=items.reduce((s,d)=>s+d.qty*d.price,0);
+    const u=items.filter(d=>d.status==='urgent').length;
+    const r2=items.filter(d=>d.status==='reorder').length;
+
+    const sec=document.createElement('div');
+    sec.className='grade-section';
+
+    const hdr=document.createElement('div');
+    hdr.className=`grade-hdr open ${GH_CLS[g]}`;
+    const uBadge = u ? (' <span style="color:#a32d2d">●'+u+'緊急</span>') : '';
+    const rBadge = r2 ? (' <span style="color:#854f0b">●'+r2+'應補</span>') : '';
+    const gLabel = g==='NR'?'—':g==='28CM'?'28cm':g;
+    hdr.innerHTML = '<span class="g-badge '+GB_CLS[g]+'">'+gLabel+'</span>'
+      + '<span>'+cfg.labels[g]+'</span>'
+      + '<span style="font-size:10px;opacity:.6;margin-left:6px">'+cfg.sublabels[g]+'</span>'
+      + '<span class="gc-cnt">'+items.length+' SKU NT$'+sc.toLocaleString()+uBadge+rBadge+'</span>'
+      + '<span class="arrow">▶</span>';
+    hdr.onclick=()=>{
+      hdr.classList.toggle('open');
+      body.style.display=hdr.classList.contains('open')?'block':'none';
+    };
+
+    const body=document.createElement('div');
+    body.className='grade-body';
+    body.style.marginTop='6px';
+
+    const tblWrap=document.createElement('div');
+    tblWrap.className='tbl-wrap';
+    tblWrap.style.marginBottom='4px';
+
+    const tbl=document.createElement('table');
+    const thead=document.createElement('thead');
+    const grpId = seriesName+'-'+g;
+    thead.innerHTML='<tr><th class="cb-th"><input type="checkbox" class="grp-cb-all" data-grp="'+grpId+'" onclick="toggleGrpAll(this)" title="全選本組"></th>'
+      +'<th>狀態</th><th>品項</th><th>色系</th><th>尺寸</th>'
+      +'<th>庫存</th><th>可售月數</th><th>月均銷</th>'
+      +'<th>建議補貨量</th><th>售價</th><th>成本</th><th>市值</th><th>料品編號</th></tr>';
+    const tbody2=document.createElement('tbody');
+    items.forEach(r=>{
+      const bw=Math.max(Math.round(r.qty/Math.max(MAX_QTY,1)*50),2);
+      const barC=SERIES_C[r.series]||'#888';
+      const msC=r.months_stock<2?'#a32d2d':r.months_stock<4?'#854f0b':r.months_stock<8?'#185fa5':'#2d6b2d';
+      const sug=r.no_restock?'<span class="sug sug-nr">🚫 不補貨</span>':
+                 r.suggest_qty>0?`<span class="sug sug-has">補 ${r.suggest_qty} 件</span>`:
+                 '<span class="sug sug-none">—</span>';
+      const displayColor=r.color||'';
+      const tr=document.createElement('tr');
+      if(r.no_restock) tr.className='row-nr';
+      const cbCell='<td class="cb-cell"><input type="checkbox" class="row-cb" data-sku="'+r.sku+'" data-grp="'+grpId+'" onchange="onCbChange()"></td>';
+      tr.innerHTML=cbCell+`
+        <td><span class="status-badge ${STATUS_CLS[r.status]}">${STATUS_LABEL[r.status]}</span></td>
+        <td><span class="type-b">${r.type}</span></td>
+        <td>${displayColor}</td>
+        <td><span class="size-b">${r.size}</span></td>
+        <td><div class="qty-cell"><span class="qty-n" style="color:${barC}">${r.qty}</span>${r.po_incoming?'<span class="po-badge">+'+r.po_incoming+' 到</span>':''}<div class="qty-bar" style="width:${bw}px;background:${barC}"></div></div></td>
+        <td style="color:${msC};font-weight:600">${r.months_stock.toFixed(1)} 月</td>
+        <td style="text-align:right;color:#888">${r.monthly.toFixed(1)}</td>
+        <td>${sug}</td>
+        <td style="text-align:right">$${r.price.toLocaleString()}</td>
+        <td style="text-align:right;color:#854f0b">${r.cost?'$'+r.cost.toLocaleString():'—'}</td>
+        <td style="text-align:right;font-weight:600">$${(r.qty*r.price).toLocaleString()}</td>
+        <td><span class="sku-c">${r.sku}</span></td>`;
+      // restore checked state
+      const cb2=tr.querySelector('.row-cb');
+      if(cb2 && selectedSkus.has(r.sku)) cb2.checked=true;
+      tbody2.appendChild(tr);
+    });
+    // sync group master checkbox
+    const allGrpCbs=tbody2.querySelectorAll('.row-cb');
+    const masterGrp=thead.querySelector('.grp-cb-all');
+    if(masterGrp && allGrpCbs.length>0) masterGrp.checked=[...allGrpCbs].every(c=>c.checked);
+    tbl.appendChild(thead);
+    tbl.appendChild(tbody2);
+    tblWrap.appendChild(tbl);
+    body.appendChild(tblWrap);
+    sec.appendChild(hdr);
+    sec.appendChild(body);
+    container.appendChild(sec);
+  });
+  return container;
+}
+
+function render(){
+  const q=(document.getElementById('searchBox').value||'').toLowerCase();
+  const gradeSec=document.getElementById('grade-sections');
+  const flatFilters=document.getElementById('flat-filters');
+
+  const poPanel=document.getElementById('po-panel');
+  if(activeTab==='po'){
+    gradeSec.style.display='none';
+    flatFilters.style.display='none';
+    if(poPanel) poPanel.style.display='block';
+    renderPO();
+    return;
+  }
+  if(poPanel) poPanel.style.display='none';
+
+  if(activeTab==='all'){
+    // Flat table mode
+    gradeSec.style.display='none';
+    flatFilters.style.display='block';
+
+    let rows=DATA.filter(d=>{
+      if(flatSeriesF!=='all'&&d.series!==flatSeriesF) return false;
+      if(flatGradeF!=='all'&&d.color_grade!==flatGradeF) return false;
+      if(statusF!=='all'&&d.status!==statusF) return false;
+      if(q&&!d.sku.toLowerCase().includes(q)&&!d.color.toLowerCase().includes(q)&&!(d.name||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+    rows.sort((a,b)=>cmp(a,b,sortK)*sortD);
+
+    const tbody=document.getElementById('tbl');
+    tbody.innerHTML='';
+    rows.forEach(r=>{
+      const tr=makeRow(r);
+      // restore checked state
+      const cb=tr.querySelector('.row-cb');
+      if(cb && selectedSkus.has(r.sku)) cb.checked=true;
+      tbody.appendChild(tr);
+    });
+    // sync master checkbox
+    const allCbs=document.querySelectorAll('.row-cb');
+    const master=document.getElementById('cb-all');
+    if(master) master.checked=allCbs.length>0&&[...allCbs].every(c=>c.checked);
+
+    const tv=rows.reduce((s,r)=>s+r.qty*r.price,0);
+    document.getElementById('show-cnt').textContent=rows.length;
+    document.getElementById('show-val').textContent='NT$'+tv.toLocaleString();
+    updateMiniStats(rows);
+
+  } else {
+    // Grade sections mode
+    gradeSec.style.display='block';
+    flatFilters.style.display='none';
+
+    const seriesData=DATA.filter(d=>d.series===activeTab);
+    const inner=document.getElementById('grade-sections-inner');
+    inner.innerHTML='';
+    // Add search box above grade sections
+    const sb=document.createElement('div');
+    sb.style.cssText='display:flex;justify-content:flex-end;margin-bottom:10px;';
+    sb.innerHTML='<input class="search" id="searchBox2" placeholder="搜尋品名 / 料品編號..." oninput="render()" style="width:200px">';
+    // sync search
+    inner.appendChild(sb);
+
+    const cont=buildGradeSections(seriesData, activeTab);
+    inner.appendChild(cont);
+
+    // Mini stats from all of this series (not filtered)
+    let filtered=seriesData;
+    if(statusF!=='all') filtered=filtered.filter(d=>d.status===statusF);
+    updateMiniStats(filtered);
+  }
+}
+
+function updateMiniStats(rows){
+  const tv=rows.reduce((s,r)=>s+r.qty*r.price,0);
+  document.getElementById('ms-cnt').textContent=rows.length;
+  document.getElementById('ms-val').textContent='NT$'+tv.toLocaleString();
+  document.getElementById('ms-u').textContent=rows.filter(d=>d.status==='urgent').length;
+  document.getElementById('ms-r').textContent=rows.filter(d=>d.status==='reorder').length;
+  document.getElementById('ms-w').textContent=rows.filter(d=>d.status==='watch').length;
+  document.getElementById('ms-o').textContent=rows.filter(d=>d.status==='ok').length;
+}
+
+// Sync search between two boxes
+document.addEventListener('input',e=>{
+  if(e.target.id==='searchBox2'){document.getElementById('searchBox').value=e.target.value;render();}
+  if(e.target.id==='searchBox'){const s2=document.getElementById('searchBox2');if(s2)s2.value=e.target.value;}
+});
+
+// ===== PO Data =====
+const PO_DATA = [{"info":{"po_no":"PP26021300024","date":"2026-02-13","vendor":"南通五權家纺品","arrival_date":"2026-04-15","total":231457.13,"created_by":"Gigi","status":"pending"},"items":[{"sku":"FMATTCK000637","name":"航向好眠｜兩用被套｜特大｜午茶之旅","qty":10,"price":704.43,"current_qty":19,"series":"航向好眠","type":"兩用被套","status":"reorder","subtotal":7044.3},{"sku":"FMATTCK000638","name":"航向好眠｜兩用被套｜特大｜南法之旅","qty":5,"price":704.43,"current_qty":11,"series":"航向好眠","type":"兩用被套","status":"reorder","subtotal":3522.15},{"sku":"FMATTCK000760","name":"航向好眠｜兩用被套｜特大｜暮丘小徑","qty":5,"price":704.43,"current_qty":10,"series":"航向好眠","type":"兩用被套","status":"reorder","subtotal":3522.15},{"sku":"FMATTCS000637","name":"航向好眠｜兩用被套｜單人｜午茶之旅","qty":5,"price":553.64,"current_qty":9,"series":"航向好眠","type":"兩用被套","status":"urgent","subtotal":2768.2},{"sku":"FMBSCTD000695","name":"航向好眠｜枕頭套床包組｜雙人｜輕輕蔚藍｜淺雲米","qty":28,"price":553.64,"current_qty":61,"series":"航向好眠","type":"枕頭套床包組","status":"ok","subtotal":15501.92},{"sku":"FMBSCTD000760","name":"航向好眠｜枕頭套床包組｜雙人｜暮丘小徑","qty":28,"price":553.64,"current_qty":56,"series":"航向好眠","type":"枕頭套床包組","status":"ok","subtotal":15501.92},{"sku":"FMBSCTK000760","name":"航向好眠｜枕頭套床包組｜特大｜暮丘小徑","qty":11,"price":643.3,"current_qty":22,"series":"航向好眠","type":"枕頭套床包組","status":"watch","subtotal":7076.3},{"sku":"FMBSCTS000760","name":"航向好眠｜枕頭套床包組｜單人｜暮丘小徑","qty":7,"price":427.61,"current_qty":14,"series":"航向好眠","type":"枕頭套床包組","status":"reorder","subtotal":2993.27},{"sku":"FMBSTCD000637","name":"航向好眠｜枕頭套床包組｜雙人｜午茶之旅","qty":82,"price":561.79,"current_qty":163,"series":"航向好眠","type":"枕頭套床包組","status":"ok","subtotal":46066.78},{"sku":"FMBSTCQ000022","name":"航向好眠｜枕頭套床包組｜加大｜星辰灰藍","qty":47,"price":602.55,"current_qty":92,"series":"航向好眠","type":"枕頭套床包組","status":"ok","subtotal":28319.85},{"sku":"FMBSTCQ000638","name":"航向好眠｜枕頭套床包組｜加大｜南法之旅","qty":35,"price":602.55,"current_qty":73,"series":"航向好眠","type":"枕頭套床包組","status":"ok","subtotal":21089.25},{"sku":"FMDUTCD000637","name":"航向好眠｜薄被套｜雙人｜午茶之旅","qty":9,"price":525.11,"current_qty":18,"series":"航向好眠","type":"薄被套","status":"reorder","subtotal":4725.99},{"sku":"FMDUTCD000752","name":"純淨天絲｜薄被套｜雙人｜夜幕灰","qty":7,"price":525.11,"current_qty":15,"series":"純淨天絲","type":"薄被套","status":"reorder","subtotal":3675.77},{"sku":"FMPCTCS000637","name":"航向好眠｜枕頭套1入｜午茶之旅","qty":64,"price":110.04,"current_qty":128,"series":"航向好眠","type":"枕頭套1入","status":"ok","subtotal":7042.56},{"sku":"FMPWTCS000637-1","name":"航向好眠｜抱枕(含芯)｜午茶之旅｜奶油白","qty":7,"price":105.96,"current_qty":13,"series":"航向好眠","type":"抱枕","status":"reorder","subtotal":741.72},{"sku":"FMDUTCD000016","name":"航向好眠｜薄被套｜雙人｜月球白灰｜月球灰","qty":6,"price":520.0,"current_qty":29,"series":"航向好眠","type":"薄被套","status":"watch","subtotal":3120.0},{"sku":"FMDUTCD000695","name":"航向好眠｜薄被套｜雙人｜輕輕蔚藍｜淺雲米","qty":6,"price":520.0,"current_qty":12,"series":"航向好眠","type":"薄被套","status":"reorder","subtotal":3120.0},{"sku":"FMATTCD000695","name":"航向好眠｜兩用被套｜雙人｜輕輕蔚藍","qty":20,"price":660.0,"current_qty":42,"series":"航向好眠","type":"兩用被套","status":"ok","subtotal":13200.0},{"sku":"FMATTCD000016","name":"航向好眠｜兩用被套｜雙人｜月球白灰｜月球灰","qty":20,"price":660.0,"current_qty":49,"series":"航向好眠","type":"兩用被套","status":"ok","subtotal":13200.0},{"sku":"FMATTCD000760","name":"航向好眠｜兩用被套｜雙人｜暮丘小徑","qty":20,"price":660.0,"current_qty":39,"series":"航向好眠","type":"兩用被套","status":"ok","subtotal":13200.0},{"sku":"FMDUTCD000760","name":"航向好眠｜薄被套｜雙人｜暮丘小徑","qty":6,"price":520.0,"current_qty":23,"series":"航向好眠","type":"薄被套","status":"watch","subtotal":3120.0},{"sku":"FMDUTCD000781","name":"航向好眠｜薄被套｜雙人｜海嶼漫迴","qty":12,"price":520.0,"current_qty":28,"series":"航向好眠","type":"薄被套","status":"watch","subtotal":6240.0},{"sku":"FMPCTCS000638","name":"航向好眠｜枕頭套1入｜南法之旅","qty":36,"price":155.0,"current_qty":81,"series":"航向好眠","type":"枕頭套1入","status":"ok","subtotal":5580.0},{"sku":"FMPWTCS000637","name":"航向好眠｜抱枕(含芯)｜午茶之旅｜奶茶色","qty":7,"price":155.0,"current_qty":16,"series":"航向好眠","type":"抱枕","status":"reorder","subtotal":1085.0}]}];
+
+function renderPO(){
+  const container=document.getElementById('po-panel');
+  if(!container) return;
+  container.innerHTML='';
+
+  // Header summary
+  const totalPOs=PO_DATA.length;
+  const totalUnits=PO_DATA.reduce((s,po)=>s+po.items.reduce((ss,i)=>ss+i.qty,0),0);
+  const totalAmt=PO_DATA.reduce((s,po)=>s+po.info.total,0);
+  const pending=PO_DATA.filter(po=>po.info.status!=='arrived').length;
+
+  const sumDiv=document.createElement('div');
+  sumDiv.style.cssText='display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:#f7f3ef;padding:10px 14px;border-radius:8px;';
+  sumDiv.innerHTML='<div class="sr"><div class="sv" style="color:#5a3e8a">'+totalPOs+'</div><div class="sl">採購單數</div></div>'
+    +'<div class="sr"><div class="sv" style="color:#2d6b2d">'+totalUnits+' 件</div><div class="sl">合計採購件數</div></div>'
+    +'<div class="sr"><div class="sv" style="color:#5a3e8a">NT$'+Math.round(totalAmt).toLocaleString()+'</div><div class="sl">合計採購成本</div></div>'
+    +'<div class="sr"><div class="sv" style="color:#854f0b">'+pending+'</div><div class="sl">⏳ 待到貨</div></div>'
+    +'<div class="sr"><div class="sv" style="color:#2d6b2d">'+(totalPOs-pending)+'</div><div class="sl">✅ 已到貨</div></div>';
+  container.appendChild(sumDiv);
+
+  const poList=document.createElement('div');
+  poList.className='po-list';
+
+  PO_DATA.forEach((po,idx)=>{
+    const info=po.info;
+    const items=po.items;
+    const subtotal=items.reduce((s,i)=>s+i.subtotal,0);
+    const totalQty=items.reduce((s,i)=>s+i.qty,0);
+    const isArrived=info.status==='arrived';
+    const daysLeft=Math.ceil((new Date(info.arrival_date)-new Date())/(1000*60*60*24));
+    const daysStr=daysLeft>0?daysLeft+'天後到貨':daysLeft===0?'今日到貨':'已過預定到貨日';
+
+    const card=document.createElement('div');
+    card.className='po-po-card';
+
+    // Card header
+    const hdr=document.createElement('div');
+    hdr.className='po-sub-hdr';
+    hdr.innerHTML='<span class="po-tag">'+info.po_no+'</span>'
+      +'<span style="font-size:13px;font-weight:600;color:#3a485e;margin-left:6px">'+info.vendor+'</span>'
+      +'<span style="font-size:11px;color:#888;margin-left:10px">下單：'+info.date+'</span>'
+      +'<span class="po-status-badge '+(isArrived?'pos-arrived':'pos-pending')+'" style="margin-left:8px">'+(isArrived?'✅ 已到貨':'⏳ 待到貨 · '+daysStr)+'</span>'
+      +'<span style="margin-left:auto;display:flex;align-items:center;gap:16px;">'
+      +'<span style="text-align:right"><span style="font-size:10px;color:#aaa;display:block">採購件數</span><span style="font-size:13px;font-weight:700;color:#2d6b2d">'+totalQty+' 件</span></span>'
+      +'<span style="text-align:right"><span style="font-size:10px;color:#aaa;display:block">採購成本</span><span style="font-size:13px;font-weight:700;color:#5a3e8a">NT$'+Math.round(subtotal).toLocaleString()+'</span></span>'
+      +'</span>'
+      +'<span class="po-arrow" style="margin-left:12px">▶</span>';
+
+    let bodyVisible=true;
+    const body=document.createElement('div');
+    body.className='po-sub-body';
+
+    hdr.onclick=()=>{
+      bodyVisible=!bodyVisible;
+      body.style.display=bodyVisible?'block':'none';
+      hdr.querySelector('.po-arrow').style.transform=bodyVisible?'rotate(90deg)':'';
+    };
+    hdr.querySelector('.po-arrow').style.transform='rotate(90deg)';
+
+    // Meta info
+    const meta=document.createElement('div');
+    meta.className='po-meta';
+    meta.style.cssText='margin-bottom:12px;padding:10px 14px;background:#faf8ff;border-radius:8px;display:flex;gap:24px;flex-wrap:wrap;';
+    meta.innerHTML='<div><strong>預定到貨</strong> '+info.arrival_date+'</div>'
+      +'<div><strong>建單人員</strong> '+info.created_by+'</div>'
+      +'<div><strong>採購件數</strong> '+totalQty+' 件 / '+items.length+' 個 SKU</div>'
+      +'<div><strong>實付總額</strong> NT$'+Math.round(info.total).toLocaleString()+'</div>';
+    body.appendChild(meta);
+
+    // Items table
+    const tblWrap=document.createElement('div');
+    tblWrap.className='po-tbl-wrap';
+    const tbl=document.createElement('table');
+    tbl.innerHTML='<thead><tr>'
+      +'<th>#</th><th>料品編號</th><th>品名</th>'
+      +'<th>系列</th><th>採購數量</th><th>單價</th><th>小計</th>'
+      +'<th>含採購後庫存</th><th>庫存狀態</th>'
+      +'</tr></thead>';
+    const tbody=document.createElement('tbody');
+    const statusMap={urgent:'🔴 緊急',reorder:'🟡 應補',watch:'🔵 留意',ok:'🟢 充裕'};
+    const statusCls={urgent:'sb-urgent',reorder:'sb-reorder',watch:'sb-watch',ok:'sb-ok'};
+
+    items.forEach((item,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td style="color:#aaa;font-size:10px">'+(i+1)+'</td>'
+        +'<td><span class="sku-c" style="color:#888">'+item.sku+'</span></td>'
+        +'<td style="font-size:11px">'+item.name+'</td>'
+        +'<td><span style="font-size:10px;color:#888">'+item.series+'</span></td>'
+        +'<td><span class="po-qty-badge">+'+item.qty+' 件</span></td>'
+        +'<td style="text-align:right;color:#888">$'+item.price.toLocaleString()+'</td>'
+        +'<td style="text-align:right;font-weight:600">$'+Math.round(item.subtotal).toLocaleString()+'</td>'
+        +'<td style="text-align:right;font-weight:600;color:#3a485e">'+item.current_qty+'</td>'
+        +'<td>'+(item.status?'<span class="status-badge '+statusCls[item.status]+'">'+statusMap[item.status]+'</span>':'—')+'</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Total row
+    const totalRow=document.createElement('tr');
+    totalRow.style.cssText='background:#f3f0f8;font-weight:600;';
+    totalRow.innerHTML='<td colspan="4" style="text-align:right;font-size:11px;color:#7a5ea8;padding:8px 10px">合計</td>'
+      +'<td><span class="po-qty-badge">'+totalQty+' 件</span></td>'
+      +'<td style="text-align:right;font-size:10px;color:#aaa">—</td>'
+      +'<td style="text-align:right;font-weight:700;color:#5a3e8a;font-size:14px">NT$'+Math.round(subtotal).toLocaleString()+'</td>'
+      +'<td colspan="2"></td>';
+    tbody.appendChild(totalRow);
+    tbl.appendChild(tbody);
+    tblWrap.appendChild(tbl);
+    body.appendChild(tblWrap);
+
+    body.innerHTML+='<div class="po-note">📌 庫存數字已含本採購單到貨量。如到貨數量與採購單不符，請更新庫存後重新匯入。</div>';
+
+    card.appendChild(hdr);
+    card.appendChild(body);
+    poList.appendChild(card);
+  });
+
+  container.appendChild(poList);
+}
+
+// ===== Checkbox & Export =====
+let selectedSkus = new Set();
+
+function onCbChange(){
+  selectedSkus.clear();
+  document.querySelectorAll('.row-cb:checked').forEach(cb=>selectedSkus.add(cb.dataset.sku));
+  updateExportBar();
+}
+
+function toggleAllCb(masterCb){
+  document.querySelectorAll('.row-cb').forEach(cb=>{
+    cb.checked=masterCb.checked;
+    if(masterCb.checked) selectedSkus.add(cb.dataset.sku);
+    else selectedSkus.delete(cb.dataset.sku);
+  });
+  updateExportBar();
+}
+
+function selectAllVisible(){
+  document.querySelectorAll('.row-cb').forEach(cb=>{
+    cb.checked=true;
+    selectedSkus.add(cb.dataset.sku);
+  });
+  const master=document.getElementById('cb-all');
+  if(master) master.checked=true;
+  updateExportBar();
+}
+
+function selectAllGradeVisible(){
+  document.querySelectorAll('#grade-sections-inner .row-cb').forEach(cb=>{
+    cb.checked=true;
+    selectedSkus.add(cb.dataset.sku);
+  });
+  // sync all group masters
+  document.querySelectorAll('.grp-cb-all').forEach(m=>m.checked=true);
+  updateExportBar();
+}
+
+function toggleGrpAll(masterCb){
+  const grp=masterCb.dataset.grp;
+  document.querySelectorAll('.row-cb[data-grp="'+grp+'"]').forEach(cb=>{
+    cb.checked=masterCb.checked;
+    if(masterCb.checked) selectedSkus.add(cb.dataset.sku);
+    else selectedSkus.delete(cb.dataset.sku);
+  });
+  updateExportBar();
+}
+
+function clearAll(){
+  selectedSkus.clear();
+  document.querySelectorAll('.row-cb').forEach(cb=>cb.checked=false);
+  document.querySelectorAll('.grp-cb-all').forEach(m=>m.checked=false);
+  const master=document.getElementById('cb-all');
+  if(master) master.checked=false;
+  updateExportBar();
+}
+
+function updateExportBar(){
+  const bar=document.getElementById('export-bar');
+  const barGs=document.getElementById('export-bar-gs');
+  const cnt=document.getElementById('sel-count');
+  const cntGs=document.getElementById('sel-count-gs');
+  cnt.textContent=selectedSkus.size;
+  if(cntGs) cntGs.textContent=selectedSkus.size;
+  const show=selectedSkus.size>0;
+  bar.classList.toggle('hidden', !show || activeTab!=='all');
+  if(barGs) barGs.classList.toggle('hidden', !show || activeTab==='all');
+
+  // Compute cost & value totals for selected
+  const selData=DATA.filter(d=>selectedSkus.has(d.sku));
+  const totalCost=selData.reduce((s,d)=>(d.suggest_qty>0?s+(d.cost||0)*d.suggest_qty:s),0);
+  const totalCostAll=selData.reduce((s,d)=>s+(d.cost||0)*d.qty,0);
+  const totalVal=selData.reduce((s,d)=>s+d.qty*d.price,0);
+  // Show: cost of suggested reorder qty (if any), else cost of current stock
+  const displayCost=totalCost>0?totalCost:totalCostAll;
+
+  ['','gs'].forEach(sfx=>{
+    const costEl=document.getElementById('sel-cost'+(sfx?'-'+sfx:''));
+    const valEl=document.getElementById('sel-val'+(sfx?'-'+sfx:''));
+    if(costEl) costEl.textContent='NT$'+displayCost.toLocaleString();
+    if(valEl)  valEl.textContent='NT$'+totalVal.toLocaleString();
+  });
+}
+
+function exportCSV(){
+  if(selectedSkus.size===0) return;
+  const selected=DATA.filter(d=>selectedSkus.has(d.sku));
+  const headers=['料品編號','系列','色系等級','品項','色系','尺寸','庫存件數','可售月數','月均銷','建議補貨量','售價','成本','市值','補貨狀態','不補貨'];
+  const statusMap={urgent:'緊急補貨',reorder:'應補貨',watch:'需留意',ok:'充裕'};
+  const gradeMap={A:'A 最熱銷',B:'B 穩定',C:'C 不穩定',D:'D 冷門',NR:'不補貨色系','28CM':'28cm規格'};
+  const rows=selected.map(d=>[
+    d.sku, d.series,
+    gradeMap[d.color_grade]||d.color_grade,
+    d.type, d.color, d.size,
+    d.qty, d.months_stock.toFixed(1), d.monthly.toFixed(1),
+    d.suggest_qty, d.price, d.cost||'', d.qty*d.price,
+    statusMap[d.status]||d.status,
+    d.no_restock?'是':'否'
+  ]);
+  const NL = String.fromCharCode(10);
+  const csv = '﻿' + [headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join(NL);
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const now=new Date();
+  const ymd=String(now.getFullYear())+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  a.download='飛航模飾_補貨清單_'+ymd+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Calculator
+function tCalc(){document.getElementById('calc-panel').classList.toggle('open');}
+function swCTab(t){
+  document.getElementById('cp-f').style.display=t==='f'?'block':'none';
+  document.getElementById('cp-r').style.display=t==='r'?'block':'none';
+  document.getElementById('ctf').className='cp-tab'+(t==='f'?' active':'');
+  document.getElementById('ctr').className='cp-tab'+(t==='r'?' active':'');
+}
+function fmt(n){return 'NT$'+(Math.round(n)).toLocaleString();}
+function cF(){
+  const u=parseFloat(document.getElementById('cfu').value)||0;
+  const q=parseFloat(document.getElementById('cfq').value)||0;
+  const e=parseFloat(document.getElementById('cfe').value)||0;
+  const res=document.getElementById('fres');
+  if(!u||!q){res.style.display='none';return;}
+  const sub=u*q,tot=sub+e;
+  document.getElementById('cfs').textContent=fmt(sub);
+  document.getElementById('cfx').textContent=e?fmt(e):'—';
+  document.getElementById('cft').textContent=fmt(tot);
+  document.getElementById('cfp').textContent='平均 '+fmt(tot/q)+' / 板';
+  res.style.display='block';
+}
+function cR(){
+  const b=parseFloat(document.getElementById('crb').value)||0;
+  const u=parseFloat(document.getElementById('cru').value)||0;
+  const e=parseFloat(document.getElementById('cre').value)||0;
+  const res=document.getElementById('rres');
+  if(!b||!u){res.style.display='none';return;}
+  const net=b-e;
+  if(net<=0){document.getElementById('crp').textContent='預算不足';res.style.display='block';return;}
+  const p=Math.floor(net/u),used=p*u+e;
+  document.getElementById('crp').textContent=p+' 板';
+  document.getElementById('crn').textContent=fmt(net);
+  document.getElementById('crd').textContent=fmt(used);
+  document.getElementById('crh').textContent=(net-p*u)>0?`再加 ${fmt(u-(net-p*u))} 可多裝 1 板`:'';
+  res.style.display='block';
+}
+
+// Init
+render();
+document.getElementById('th-status').classList.add('sort-asc');
+</script>
+</body>
+</html>
